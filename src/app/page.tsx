@@ -25,9 +25,28 @@ export default function Dashboard() {
   
   // Search & Filter state
   const [search, setSearch] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
   const [officialKrOnly, setOfficialKrOnly] = useState(false);
   const [userKrOnly, setUserKrOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'discount' | 'kr_score' | 'price' | 'title'>('discount');
+
+  const handleSearchSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!search.trim()) return;
+
+    try {
+      setSearchLoading(true);
+      const res = await fetch(`/api/games?search=${encodeURIComponent(search.trim())}`);
+      const json = await res.json();
+      if (json.success) {
+        setGames(json.data);
+      }
+    } catch (err) {
+      console.error('Failed to run global steam store search', err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   // Wishlist Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -169,18 +188,30 @@ export default function Dashboard() {
       {/* Search and Filters Section */}
       <div className="flex flex-col gap-3">
         {/* Search Input */}
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="게임명 검색..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-11 bg-zinc-100/80 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700/60 text-zinc-800 dark:text-zinc-100 rounded-xl px-4 pl-10 text-xs font-medium placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet-500 transition-colors"
-          />
-          <svg className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-400 dark:text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.608 10.608Z" />
-          </svg>
-        </div>
+        <form onSubmit={handleSearchSubmit} className="relative flex gap-2 w-full">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              placeholder="게임명 검색... (엔터 시 스팀 전체 검색)"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-11 bg-zinc-100/80 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700/60 text-zinc-800 dark:text-zinc-100 rounded-xl px-4 pl-10 text-xs font-medium placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet-500 transition-colors"
+            />
+            <svg className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-400 dark:text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.608 10.608Z" />
+            </svg>
+            {searchLoading && (
+              <div className="absolute right-3.5 top-3.5 w-4 h-4 rounded-full border-2 border-violet-500 border-t-transparent animate-spin"></div>
+            )}
+          </div>
+          <button 
+            type="submit"
+            disabled={searchLoading || !search.trim()}
+            className="px-4 h-11 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition-all flex items-center justify-center gap-1 flex-shrink-0"
+          >
+            검색
+          </button>
+        </form>
 
         {/* Filter Badges & Switch Toggles */}
         <div className="flex flex-wrap gap-2 items-center justify-between">
