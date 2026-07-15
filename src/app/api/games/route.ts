@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
+    const matches: number[] = [];
 
     // If search term is supplied, trigger global Steam store search and auto-cache to DB
     if (search && search.trim().length > 1) {
@@ -26,8 +27,10 @@ export async function GET(request: Request) {
           const items = res.data.items;
           
           for (const item of items) {
+            const appId = item.id;
+            matches.push(appId); // Register this AppID as a search match
+            
             try {
-              const appId = item.id;
               const title = item.name;
               
               // Only insert if it doesn't exist in our DB
@@ -80,7 +83,20 @@ export async function GET(request: Request) {
     }
 
     const data = await db.getGames();
-    return NextResponse.json({ success: true, data });
+    
+    // Also include any local DB games that match the search substring in matches list
+    if (search) {
+      const searchLower = search.toLowerCase();
+      data.forEach(game => {
+        if (game.title.toLowerCase().includes(searchLower)) {
+          if (!matches.includes(game.app_id)) {
+            matches.push(game.app_id);
+          }
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, data, matches });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

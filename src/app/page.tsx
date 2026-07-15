@@ -26,6 +26,7 @@ export default function Dashboard() {
   // Search & Filter state
   const [search, setSearch] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  const [globalSearchAppIds, setGlobalSearchAppIds] = useState<number[]>([]);
   const [officialKrOnly, setOfficialKrOnly] = useState(false);
   const [userKrOnly, setUserKrOnly] = useState(false);
   const [sortBy, setSortBy] = useState<'discount' | 'kr_score' | 'price' | 'title'>('discount');
@@ -40,6 +41,7 @@ export default function Dashboard() {
       const json = await res.json();
       if (json.success) {
         setGames(json.data);
+        setGlobalSearchAppIds(json.matches || []);
       }
     } catch (err) {
       console.error('Failed to run global steam store search', err);
@@ -68,6 +70,7 @@ export default function Dashboard() {
       const json = await res.json();
       if (json.success) {
         setGames(json.data);
+        setGlobalSearchAppIds([]);
       }
     } catch (e) {
       console.error('Failed to load games', e);
@@ -126,7 +129,9 @@ export default function Dashboard() {
     .filter(game => {
       // Search term match
       if (search && !game.title.toLowerCase().includes(search.toLowerCase())) {
-        return false;
+        if (!globalSearchAppIds.includes(game.app_id)) {
+          return false;
+        }
       }
       // Official Korean support filter
       if (officialKrOnly) {
@@ -194,7 +199,12 @@ export default function Dashboard() {
               type="text"
               placeholder="게임명 검색... (엔터 시 스팀 전체 검색)"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                if (!e.target.value.trim()) {
+                  setGlobalSearchAppIds([]);
+                }
+              }}
               className="w-full h-11 bg-zinc-100/80 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700/60 text-zinc-800 dark:text-zinc-100 rounded-xl px-4 pl-10 text-xs font-medium placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet-500 transition-colors"
             />
             <svg className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-400 dark:text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
