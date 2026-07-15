@@ -1,0 +1,7 @@
+{
+  "name": "steam-sale",
+  "pages_build_output_dir": ".vercel/output/static",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
