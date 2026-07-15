@@ -168,6 +168,11 @@ function getFsModule() {
   }
 }
 
+// Helper to safely call process.cwd on Node environments
+function getProcessCwd() {
+  return typeof process !== 'undefined' && typeof process.cwd === 'function' ? process.cwd() : '';
+}
+
 // Ensure database file exists (Only runs in standard Node environment)
 function initDb(): DbSchema {
   const { fs, path } = getFsModule();
@@ -177,7 +182,7 @@ function initDb(): DbSchema {
     return globalForDb.__json_db_cache!;
   }
 
-  const DB_DIR = path.join(process.cwd(), 'data');
+  const DB_DIR = path.join(getProcessCwd(), 'data');
   const DB_FILE = path.join(DB_DIR, 'db.json');
 
   if (!fs.existsSync(DB_DIR)) {
@@ -209,7 +214,7 @@ function saveDb(data: DbSchema) {
   }
 
   try {
-    const DB_DIR = path.join(process.cwd(), 'data');
+    const DB_DIR = path.join(getProcessCwd(), 'data');
     const DB_FILE = path.join(DB_DIR, 'db.json');
     if (!fs.existsSync(DB_DIR)) {
       fs.mkdirSync(DB_DIR, { recursive: true });

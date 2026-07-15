@@ -34,6 +34,10 @@ function getFsModule() {
   }
 }
 
+function getProcessCwd() {
+  return typeof process !== 'undefined' && typeof process.cwd === 'function' ? process.cwd() : '';
+}
+
 export function logNotification(log: Omit<NotificationLog, 'id' | 'timestamp'>) {
   const newLog: NotificationLog = {
     ...log,
@@ -56,7 +60,7 @@ export function logNotification(log: Omit<NotificationLog, 'id' | 'timestamp'>) 
   }
 
   try {
-    const dir = path.join(process.cwd(), 'data');
+    const dir = path.join(getProcessCwd(), 'data');
     const file = path.join(dir, 'notifications.json');
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -231,7 +235,7 @@ export const notifier = {
       return globalForNotifications.__notifications_cache || [];
     }
 
-    const dir = path.join(process.cwd(), 'data');
+    const dir = path.join(getProcessCwd(), 'data');
     const file = path.join(dir, 'notifications.json');
     if (fs.existsSync(file)) {
       try {
@@ -255,7 +259,7 @@ export const notifier = {
     }
 
     try {
-      const dir = path.join(process.cwd(), 'data');
+      const dir = path.join(getProcessCwd(), 'data');
       const file = path.join(dir, 'notifications.json');
       if (fs.existsSync(file)) {
         fs.writeFileSync(file, JSON.stringify([], null, 2), 'utf-8');

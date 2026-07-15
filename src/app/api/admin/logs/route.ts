@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { notifier } from '@/lib/notifier';
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {

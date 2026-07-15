@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { jsonDb as localJsonDb } from '@/lib/jsonDb';
 import { notifier } from '@/lib/notifier';
-import fs from 'fs';
-import path from 'path';
+
+export const runtime = 'edge';
 
 export async function POST() {
   try {
