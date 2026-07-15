@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { syncAllGames } from '@/lib/sync';
+import { syncAllGames, syncSpecials } from '@/lib/sync';
 
 export const runtime = 'edge';
 
@@ -14,13 +14,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log('Cron triggered: Syncing games...');
+    console.log('Cron triggered: Syncing specials and games...');
+    const specialsResult = await syncSpecials();
     const result = await syncAllGames();
     
     return NextResponse.json({
-      success: result.success,
-      message: `Successfully synchronized ${result.count} games.`,
-      count: result.count,
+      success: result.success && specialsResult.success,
+      message: `Successfully synchronized ${result.count} tracked games and ${specialsResult.count} specials.`,
+      count: result.count + specialsResult.count,
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
@@ -42,10 +43,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const specialsResult = await syncSpecials();
     const result = await syncAllGames();
     return NextResponse.json({
-      success: result.success,
-      count: result.count,
+      success: result.success && specialsResult.success,
+      count: result.count + specialsResult.count,
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {

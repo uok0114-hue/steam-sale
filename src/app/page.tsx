@@ -175,9 +175,9 @@ export default function Dashboard() {
             placeholder="게임명 검색..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-11 bg-zinc-800/80 border border-zinc-700/60 rounded-xl px-4 pl-10 text-xs font-medium placeholder-zinc-500 focus:outline-none focus:border-violet-500 transition-colors"
+            className="w-full h-11 bg-zinc-100/80 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700/60 text-zinc-800 dark:text-zinc-100 rounded-xl px-4 pl-10 text-xs font-medium placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-violet-500 transition-colors"
           />
-          <svg className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <svg className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-400 dark:text-zinc-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.608 10.608Z" />
           </svg>
         </div>
@@ -189,8 +189,8 @@ export default function Dashboard() {
               onClick={() => setOfficialKrOnly(!officialKrOnly)}
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-colors flex items-center gap-1 ${
                 officialKrOnly
-                  ? 'bg-violet-600/30 border-violet-500 text-violet-200'
-                  : 'bg-zinc-800/50 border-zinc-700/60 text-zinc-400'
+                  ? 'bg-violet-600/30 border-violet-500 text-violet-650 dark:text-violet-200'
+                  : 'bg-zinc-200/50 border-zinc-300 dark:bg-zinc-800/50 dark:border-zinc-700/60 text-zinc-600 dark:text-zinc-400'
               }`}
             >
               🇺🇳 공식 한국어
@@ -199,8 +199,8 @@ export default function Dashboard() {
               onClick={() => setUserKrOnly(!userKrOnly)}
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-colors flex items-center gap-1 ${
                 userKrOnly
-                  ? 'bg-violet-600/30 border-violet-500 text-violet-200'
-                  : 'bg-zinc-800/50 border-zinc-700/60 text-zinc-400'
+                  ? 'bg-violet-600/30 border-violet-500 text-violet-650 dark:text-violet-200'
+                  : 'bg-zinc-200/50 border-zinc-300 dark:bg-zinc-800/50 dark:border-zinc-700/60 text-zinc-600 dark:text-zinc-400'
               }`}
             >
               🛠️ 유저 패치 포함
@@ -211,7 +211,7 @@ export default function Dashboard() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="h-7 bg-zinc-800 border border-zinc-700/60 rounded-lg px-2 text-[10px] font-bold text-zinc-300 focus:outline-none focus:border-violet-500"
+            className="h-7 bg-zinc-150 border border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700/60 rounded-lg px-2 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none focus:border-violet-500"
           >
             <option value="discount">할인율 높은순</option>
             <option value="kr_score">KR Score 순</option>
@@ -290,7 +290,7 @@ export default function Dashboard() {
                       </div>
 
                       {/* Game Title */}
-                      <h3 className="font-extrabold text-sm text-zinc-100 mt-1 line-clamp-1">
+                      <h3 className="font-extrabold text-sm text-zinc-800 dark:text-zinc-100 mt-1 line-clamp-1">
                         {game.title}
                       </h3>
                       
@@ -298,20 +298,20 @@ export default function Dashboard() {
                       <div className="flex flex-col gap-1 mt-2">
                         {/* Steam Price */}
                         <div className="flex justify-between items-center text-[10px]">
-                          <span className="text-zinc-400 font-medium">스팀 상점가</span>
+                          <span className="text-zinc-500 dark:text-zinc-400 font-medium">스팀 상점가</span>
                           <div className="flex items-center gap-1.5">
                             {game.steam_discount_percent > 0 && (
-                              <span className="line-through text-zinc-600">{originalPrice.toLocaleString()}원</span>
+                              <span className="line-through text-zinc-400 dark:text-zinc-600">{originalPrice.toLocaleString()}원</span>
                             )}
-                            <span className="font-bold text-zinc-200">{game.steam_price.toLocaleString()}원</span>
+                            <span className="font-bold text-zinc-800 dark:text-zinc-200">{game.steam_price.toLocaleString()}원</span>
                           </div>
                         </div>
 
                         {/* Reseller Price (cheapest highlight) */}
                         {game.domestic_price !== null && (
-                          <div className="flex justify-between items-center text-[10px] py-0.5 rounded px-1 -mx-1 bg-zinc-800/40">
-                            <span className="text-zinc-400 font-medium">국내 리셀러 ({game.domestic_store_name})</span>
-                            <span className={`font-bold ${resellerCheaper ? 'text-violet-400 font-black' : 'text-zinc-300'}`}>
+                          <div className="flex justify-between items-center text-[10px] py-0.5 rounded px-1 -mx-1 bg-zinc-200/40 dark:bg-zinc-800/40">
+                            <span className="text-zinc-500 dark:text-zinc-400 font-medium">국내 리셀러 ({game.domestic_store_name})</span>
+                            <span className={`font-bold ${resellerCheaper ? 'text-violet-650 dark:text-violet-400 font-black' : 'text-zinc-700 dark:text-zinc-300'}`}>
                               {game.domestic_price.toLocaleString()}원
                             </span>
                           </div>
@@ -320,17 +320,17 @@ export default function Dashboard() {
                     </div>
 
                     {/* Bottom stats & Alerts triggers */}
-                    <div className="flex items-center justify-between border-t border-zinc-800/50 pt-2 mt-2">
+                    <div className="flex items-center justify-between border-t border-zinc-200/60 dark:border-zinc-800/50 pt-2 mt-2">
                       <div className="flex flex-col">
-                        <span className="text-[8px] text-zinc-500 uppercase tracking-tight font-bold">역대 최저가</span>
-                        <span className="text-[10px] font-black text-emerald-400">
+                        <span className="text-[8px] text-zinc-450 dark:text-zinc-500 uppercase tracking-tight font-bold">역대 최저가</span>
+                        <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400">
                           {game.lowest_recorded_price.toLocaleString()}원
                         </span>
                       </div>
                       
                       <button
                         onClick={() => openWishlistModal(game)}
-                        className="px-3 h-7 bg-violet-600 hover:bg-violet-700 transition-colors text-white font-extrabold text-[10px] rounded-lg shadow-md shadow-violet-900/20 flex items-center gap-1"
+                        className="px-3 h-7 bg-violet-600 hover:bg-violet-700 transition-colors text-white font-extrabold text-[10px] rounded-lg shadow-md shadow-violet-900/20 flex items-center gap-1 cursor-pointer"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />

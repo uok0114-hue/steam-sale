@@ -289,3 +289,98 @@ export async function syncAllGames(): Promise<{ success: boolean; count: number 
     return { success: false, count: 0 };
   }
 }
+
+/**
+ * Fetches current specials from Steam featuredcategories API and upserts them
+ */
+export async function syncSpecials(): Promise<{ success: boolean; count: number }> {
+  try {
+    console.log('Fetching Steam Featured Categories (Specials)...');
+    const url = 'https://store.steampowered.com/api/featuredcategories/?cc=kr&l=korean';
+    const res = await axios.get(url, { headers: HTTP_HEADERS, timeout: 6000 });
+    
+    if (!res.data || !res.data.specials || !res.data.specials.items) {
+      console.error('Failed to retrieve specials from Steam Store API');
+      return { success: false, count: 0 };
+    }
+
+    const specials = res.data.specials.items;
+    console.log(`Discovered ${specials.length} special deals on Steam store.`);
+    let count = 0;
+
+    for (const item of specials) {
+      try {
+        const appId = item.id;
+        const title = item.name;
+        
+        // Skip non-game items
+        if (item.type !== undefined && item.type !== 0 && item.type !== 'game') {
+          continue;
+        }
+        
+        const headerImage = item.header_image;
+        const steamPrice = Math.round((item.final_price || 0) / 100);
+        const steamDiscount = item.discount_percent || 0;
+        
+        // Skip if not discounted
+        if (steamDiscount === 0) continue;
+
+        console.log(`Importing special deal: ${title} (AppID: ${appId})...`);
+
+        // Fetch KR positive rate
+        const krPositiveRate = await fetchKrPositiveRate(appId);
+
+        // Fetch/mock reseller price
+        const reseller = await fetchResellerPrice(appId, title, steamPrice);
+
+        // Check lowest price records
+        const existing = await db.getGame(appId);
+        let lowestPrice = existing ? existing.lowest_recorded_price : steamPrice;
+        let lowestAt = existing ? existing.lowest_recorded_at : new Date().toISOString();
+
+        const currentLowest = reseller.price !== null && reseller.price < steamPrice
+          ? reseller.price
+          : steamPrice;
+
+        if (!existing || currentLowest < lowestPrice || lowestPrice === 0) {
+          lowestPrice = currentLowest;
+          lowestAt = new Date().toISOString();
+        }
+
+        // Upsert Game
+        await db.upsertGame({
+          app_id: appId,
+          title: title,
+          header_image: headerImage,
+          is_free: steamPrice === 0,
+          has_kr_patch: existing ? existing.has_kr_patch : false,
+          kr_patch_url: existing ? existing.kr_patch_url : null,
+          kr_positive_rate: krPositiveRate || (existing ? existing.kr_positive_rate : 90)
+        });
+
+        // Upsert Price
+        await db.upsertPrice({
+          app_id: appId,
+          steam_price: steamPrice,
+          steam_discount_percent: steamDiscount,
+          domestic_price: reseller.price,
+          domestic_store_name: reseller.store,
+          lowest_recorded_price: lowestPrice,
+          lowest_recorded_at: lowestAt
+        });
+
+        count++;
+        // Throttle to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (err: any) {
+        console.error(`Failed to sync special item: ${item.name}`, err.message);
+      }
+    }
+
+    return { success: true, count };
+  } catch (err: any) {
+    console.error('Failed to sync specials:', err.message);
+    return { success: false, count: 0 };
+  }
+}
+
