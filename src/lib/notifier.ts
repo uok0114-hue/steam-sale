@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 export interface NotificationLog {
   id: string;
   gameTitle: string;
@@ -120,7 +118,18 @@ export const notifier = {
         footer: { text: 'K-SteamTracker • 1초 모바일 가격 알림' }
       };
 
-      await axios.post(webhookUrl, { embeds: [embed] });
+      // Native fetch POST request
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ embeds: [embed] }),
+        signal: AbortSignal.timeout(6000)
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error status ${res.status}`);
+      }
+
       logNotification({
         gameTitle,
         channel: 'discord',
@@ -172,11 +181,20 @@ export const notifier = {
       text += `🔗 [스팀 상점 바로가기](${steamLink})`;
 
       const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-      await axios.post(url, {
-        chat_id: chatId,
-        text,
-        parse_mode: 'Markdown'
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: 'Markdown'
+        }),
+        signal: AbortSignal.timeout(6500)
       });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error status ${res.status}`);
+      }
 
       logNotification({
         gameTitle,

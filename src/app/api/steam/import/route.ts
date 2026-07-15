@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
 import { db } from '@/lib/db';
 
 export const runtime = 'edge';
@@ -19,9 +18,13 @@ async function resolveSteamId(steamId: string, apiKey?: string): Promise<string 
   // 2. Try to resolve via Steam Web API ResolveVanityURL if API key is provided
   if (apiKey) {
     try {
-      const res = await axios.get(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${apiKey}&vanityurl=${cleanId}`, { timeout: 5000 });
-      if (res.data && res.data.response && res.data.response.success === 1) {
-        return res.data.response.steamid;
+      const url = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${apiKey}&vanityurl=${cleanId}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        const resData = await res.json();
+        if (resData && resData.response && resData.response.success === 1) {
+          return resData.response.steamid;
+        }
       }
     } catch (e) {
       console.error('ResolveVanityURL via API Key failed:', e);
@@ -30,10 +33,14 @@ async function resolveSteamId(steamId: string, apiKey?: string): Promise<string 
 
   // 3. Fallback: Parse XML community page (Zero-API-Key resolution)
   try {
-    const xmlRes = await axios.get(`https://steamcommunity.com/id/${cleanId}/?xml=1`, { headers: HTTP_HEADERS, timeout: 5000 });
-    const match = xmlRes.data.match(/<steamID64>(\d+)<\/steamID64>/);
-    if (match && match[1]) {
-      return match[1];
+    const url = `https://steamcommunity.com/id/${cleanId}/?xml=1`;
+    const res = await fetch(url, { headers: HTTP_HEADERS, signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const xmlData = await res.text();
+      const match = xmlData.match(/<steamID64>(\d+)<\/steamID64>/);
+      if (match && match[1]) {
+        return match[1];
+      }
     }
   } catch (e) {
     console.error('XML profile resolve failed:', e);
@@ -63,17 +70,37 @@ export async function POST(request: Request) {
 
     console.log(`Resolved Steam ID to: ${resolvedId}. Fetching wishlist data...`);
     const wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${resolvedId}/wishlistdata/?cc=kr`;
-    const wishlistRes = await axios.get(wishlistUrl, { headers: HTTP_HEADERS, timeout: 6000 });
+    
+    // Native fetch for Edge Runtime compatibility
+    const wishlistRes = await fetch(wishlistUrl, { headers: HTTP_HEADERS, signal: AbortSignal.timeout(6000) });
+    
+    if (!wishlistRes.ok) {
+      return NextResponse.json({ 
+        success: false, 
+        error: '스팀 서버에서 찜목록 데이터를 조회하지 못했습니다.' 
+      }, { status: wishlistRes.status });
+    }
 
-    // Handle private profiles
-    if (typeof wishlistRes.data === 'string' && wishlistRes.data.includes('<!DOCTYPE html>')) {
+    const rawData = await wishlistRes.text();
+
+    // Handle private profiles (Steam returns login page html)
+    if (rawData.includes('<!DOCTYPE html>')) {
       return NextResponse.json({ 
         success: false, 
         error: '스팀 프로필이 비공개 상태이거나 존재하지 않습니다. 스팀 설정에서 [프로필] 및 [게임 세부 정보]를 [공개]로 변경한 후 다시 시도해 주세요.' 
       }, { status: 400 });
     }
 
-    const wishlistData = wishlistRes.data;
+    let wishlistData: any;
+    try {
+      wishlistData = JSON.parse(rawData);
+    } catch (parseErr) {
+      return NextResponse.json({ 
+        success: false, 
+        error: '스팀 찜목록 데이터 포맷 해석에 실패했습니다.' 
+      }, { status: 500 });
+    }
+
     if (!wishlistData || Object.keys(wishlistData).length === 0) {
       return NextResponse.json({ 
         success: false, 

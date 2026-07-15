@@ -20,8 +20,75 @@ export default function AdminCenter() {
   const [resetting, setResetting] = useState(false);
   const [syncResult, setSyncResult] = useState<string | null>(null);
   
+  // 스팀 API 키 및 인기 게임 수집 상태
+  const [steamApiKey, setSteamApiKey] = useState('');
+  const [popularSyncing, setPopularSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState({ active: false, current: 0, total: 0, message: '대기 중' });
+  
   // Detect DB mode (simulated on client based on headers/data or static check)
   const [dbMode, setDbMode] = useState<'Local JSON DB' | 'Supabase Postgres'>('Local JSON DB');
+
+  useEffect(() => {
+    // 마운트 시 로컬스토리지에서 저장된 스팀 API 키를 가져옵니다.
+    const savedKey = localStorage.getItem('admin_steam_api_key') || '';
+    setSteamApiKey(savedKey);
+  }, []);
+
+  const fetchSyncProgress = async () => {
+    try {
+      const res = await fetch('/api/admin/sync-popular');
+      const json = await res.json();
+      if (json.success && json.progress) {
+        setSyncProgress(json.progress);
+        // 만약 수집 작업이 종료되었다면 로컬 로딩 상태도 꺼줍니다.
+        if (!json.progress.active) {
+          setPopularSyncing(false);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch sync progress', e);
+    }
+  };
+
+  // 백그라운드 수집이 작동 중일 때 1.5초 간격으로 진행 상황을 폴링합니다.
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (popularSyncing) {
+      fetchSyncProgress();
+      timer = setInterval(fetchSyncProgress, 1500);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [popularSyncing]);
+
+  const handleStartPopularSync = async () => {
+    try {
+      setPopularSyncing(true);
+      setSyncProgress({ active: true, current: 0, total: 100, message: '서버에 백그라운드 동기화 요청 중...' });
+      
+      const res = await fetch('/api/admin/sync-popular', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: steamApiKey })
+      });
+      const json = await res.json();
+      if (json.success) {
+        // 백그라운드 수집 시작 성공
+      } else {
+        alert(`동기화 시작 실패: ${json.error}`);
+        setPopularSyncing(false);
+      }
+    } catch (e) {
+      alert('네트워크 오류가 발생했습니다.');
+      setPopularSyncing(false);
+    }
+  };
+
+  const handleSaveApiKey = () => {
+    localStorage.setItem('admin_steam_api_key', steamApiKey);
+    alert('스팀 Web API Key가 사용자 환경에 안전하게 저장되었습니다!');
+  };
 
   useEffect(() => {
     fetchLogs();
@@ -140,6 +207,73 @@ export default function AdminCenter() {
             <span className="text-xs font-black text-emerald-400 mt-0.5">정상 작동 (3회/일)</span>
           </div>
         </div>
+      </div>
+
+      {/* Steam API Key & Popular Sync Panel */}
+      <div className="glass-panel rounded-2xl p-4 border border-zinc-800 flex flex-col gap-3">
+        <h3 className="text-xs font-bold text-zinc-400 font-sans">스팀 API 연동 및 100대 인기 게임 동기화</h3>
+        
+        <div className="flex flex-col gap-2">
+          <label className="text-[10px] text-zinc-400 font-extrabold">스팀 Web API Key 등록</label>
+          <div className="flex gap-2">
+            <input
+              type="password"
+              placeholder="스팀 API 키를 입력해 주세요 (선택 사항)"
+              value={steamApiKey}
+              onChange={(e) => setSteamApiKey(e.target.value)}
+              className="flex-1 h-9 bg-zinc-800/80 border border-zinc-700/60 text-zinc-150 rounded-xl px-3 text-[11px] font-medium placeholder-zinc-500 focus:outline-none focus:border-violet-500"
+            />
+            <button
+              onClick={handleSaveApiKey}
+              className="px-3 h-9 bg-zinc-850 hover:bg-zinc-750 text-zinc-300 font-extrabold text-[11px] rounded-xl border border-zinc-700/50 transition-colors flex items-center justify-center cursor-pointer"
+            >
+              저장
+            </button>
+          </div>
+          <span className="text-[8px] text-zinc-500 leading-normal">
+            * 입력하지 않을 경우 시스템 내 기본 탑재된 100개의 대표적 인기 스팀 게임 리스트를 사용해 자동 수집합니다.
+          </span>
+        </div>
+
+        {/* Progress Bar (Visible when syncing or active) */}
+        {(popularSyncing || syncProgress.active) && (
+          <div className="bg-zinc-800/50 border border-zinc-850 rounded-xl p-3 flex flex-col gap-2">
+            <div className="flex justify-between items-center text-[10px] font-bold">
+              <span className="text-violet-400 animate-pulse">{syncProgress.message}</span>
+              <span className="text-zinc-300">
+                {syncProgress.total > 0 ? Math.round((syncProgress.current / syncProgress.total) * 100) : 0}% 
+                ({syncProgress.current} / {syncProgress.total})
+              </span>
+            </div>
+            
+            <div className="w-full h-2 bg-zinc-700/50 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-300"
+                style={{ width: `${syncProgress.total > 0 ? (syncProgress.current / syncProgress.total) * 100 : 0}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={handleStartPopularSync}
+          disabled={popularSyncing || syncProgress.active}
+          className="h-10 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold text-[11px] rounded-xl shadow-md shadow-indigo-950/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+        >
+          {popularSyncing || syncProgress.active ? (
+            <>
+              <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+              인기 게임 수집 및 분석 중...
+            </>
+          ) : (
+            <>
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+              스팀 인기 게임 100개 동기화 개시
+            </>
+          )}
+        </button>
       </div>
 
       {/* Manual Actions Panel */}
