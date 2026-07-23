@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import gamesMap from '../games.json';
 
 export default function Home() {
@@ -9,7 +9,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [searchingSuggestions, setSearchingSuggestions] = useState(false);
   const debounceRef = useRef(null);
 
   // 🔍 실시간 연관 검색어 도출 (캡처 1.png 스타일: 썸네일 + 제목 + 실시간 가격)
@@ -23,9 +22,6 @@ export default function Home() {
       return;
     }
 
-    clearTimeout(debounceRef.current);
-
-    // 1차: 로컬 games.json에서 실시간 매칭 항목 즉시 카드 생성
     const normInput = trimmed.replace(/\s+/g, '').toLowerCase();
     const localMatches = [];
     const seenAppIds = new Set();
@@ -46,32 +42,7 @@ export default function Home() {
       }
     }
 
-    setSuggestions(localMatches.slice(0, 6));
-
-    // 2차: 스팀 원격 라이브 API에서 관련 연관 게임 가져오기 (250ms 디바운스)
-    debounceRef.current = setTimeout(async () => {
-      setSearchingSuggestions(true);
-      try {
-        const res = await fetch(`/api/search?name=${encodeURIComponent(trimmed)}`);
-        if (res.ok) {
-          const resData = await res.json();
-          if (resData.suggestions && resData.suggestions.length > 0) {
-            // 원격 검색 결과와 로컬 결과를 중복 없이 병합
-            const combined = [...resData.suggestions];
-            localMatches.forEach(item => {
-              if (!combined.some(s => s.appId === item.appId)) {
-                combined.push(item);
-              }
-            });
-            setSuggestions(combined.slice(0, 7));
-          }
-        }
-      } catch (err) {
-        // 네트워크 장애 시 로컬 매칭 결과 유지
-      } finally {
-        setSearchingSuggestions(false);
-      }
-    }, 250);
+    setSuggestions(localMatches.slice(0, 7));
   };
 
   // 🔍 App ID 매핑 헬퍼
@@ -101,6 +72,49 @@ export default function Home() {
     return null;
   };
 
+  // 🌐 CORS 100% 우회 스팀 API 호출 헬퍼
+  const fetchSteamApiWithCorsBypass = async (appId) => {
+    const steamTargetUrl = `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=kr&l=korean`;
+    
+    // 1차 시도: corsproxy.io
+    try {
+      const proxy1 = `https://corsproxy.io/?${encodeURIComponent(steamTargetUrl)}`;
+      const res1 = await fetch(proxy1);
+      if (res1.ok) {
+        const json1 = await res1.json();
+        if (json1 && json1[appId] && json1[appId].success) {
+          return json1[appId].data;
+        }
+      }
+    } catch (e1) {}
+
+    // 2차 시도: api.allorigins.win
+    try {
+      const proxy2 = `https://api.allorigins.win/get?url=${encodeURIComponent(steamTargetUrl)}`;
+      const res2 = await fetch(proxy2);
+      if (res2.ok) {
+        const json2 = await res2.json();
+        const parsed = JSON.parse(json2.contents);
+        if (parsed && parsed[appId] && parsed[appId].success) {
+          return parsed[appId].data;
+        }
+      }
+    } catch (e2) {}
+
+    // 3차 시도: 직접 fetch (서버사이드 또는 CORS 오픈 호스트용)
+    try {
+      const res3 = await fetch(steamTargetUrl);
+      if (res3.ok) {
+        const json3 = await res3.json();
+        if (json3 && json3[appId] && json3[appId].success) {
+          return json3[appId].data;
+        }
+      }
+    } catch (e3) {}
+
+    return null;
+  };
+
   const fetchGamePrice = async (searchTerm) => {
     const q = searchTerm || query;
     if (!q || !q.trim()) {
@@ -114,44 +128,33 @@ export default function Home() {
 
     try {
       const matchedAppId = findAppIdFromInput(q);
-      let fetchUrl = '';
 
-      if (matchedAppId) {
-        fetchUrl = `https://store.steampowered.com/api/appdetails?appids=${matchedAppId}&cc=kr&l=korean`;
-      } else {
-        fetchUrl = `/api/search?name=${encodeURIComponent(q.trim())}`;
+      if (!matchedAppId) {
+        setLoading(false);
+        setError(`'${q.trim()}' 관련 스팀 게임을 찾지 못했습니다. 목록에 있는 다른 게임 명칭이나 숫자로 App ID를 입력해 보세요.`);
+        return;
       }
 
-      const response = await fetch(fetchUrl);
-      const resJson = await response.json();
-
+      const gData = await fetchSteamApiWithCorsBypass(matchedAppId);
       setLoading(false);
 
-      if (matchedAppId) {
-        const gameInfo = resJson[matchedAppId];
-        if (!gameInfo || !gameInfo.success) {
-          setError('게임을 찾을 수 없습니다.');
-          return;
-        }
-        const gData = gameInfo.data;
-        setData({
-          appId: matchedAppId,
-          name: gData.name,
-          headerImage: gData.header_image,
-          price: gData.is_free ? '무료' : (gData.price_overview ? gData.price_overview.final_formatted : '가격 정보 없음'),
-          discountPercent: gData.price_overview ? gData.price_overview.discount_percent : 0,
-          steamLink: `https://store.steampowered.com/app/${matchedAppId}`
-        });
-      } else {
-        if (!response.ok || resJson.error) {
-          setError(resJson.error || '게임을 찾을 수 없습니다.');
-          return;
-        }
-        setData(resJson);
+      if (!gData) {
+        setError('스팀 게임 상세 정보(가격/이미지)를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        return;
       }
+
+      setData({
+        appId: matchedAppId,
+        name: gData.name,
+        headerImage: gData.header_image,
+        price: gData.is_free ? '무료' : (gData.price_overview ? gData.price_overview.final_formatted : '가격 정보 없음'),
+        discountPercent: gData.price_overview ? gData.price_overview.discount_percent : 0,
+        steamLink: `https://store.steampowered.com/app/${matchedAppId}`
+      });
+
     } catch (err) {
       setLoading(false);
-      setError('스팀 데이터를 조회하는 중 오류가 발생했습니다.');
+      setError('스팀 데이터를 조회하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     }
   };
 
@@ -237,7 +240,7 @@ export default function Home() {
               color: '#64748b',
               textAlign: 'center'
             }}>
-              {searchingSuggestions ? '⚡ 연관 게임 검색 중...' : `'${query}' 관련 추천 연관 게임을 찾는 중...`}
+              `'{query}' 관련 추천 연관 게임을 찾는 중...`
             </div>
           ) : (
             suggestions.map((item, idx) => (
@@ -294,7 +297,7 @@ export default function Home() {
                 <span style={{
                   fontSize: '14px',
                   fontWeight: 'bold',
-                  color: item.price && item.price.includes('%') ? '#a4d007' : '#38bdf8',
+                  color: '#38bdf8',
                   whiteSpace: 'nowrap'
                 }}>
                   {item.price || '조회 가능'}
