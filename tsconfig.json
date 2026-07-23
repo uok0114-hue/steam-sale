@@ -7,11 +7,27 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
-    "noEmit": true
+    "noEmit": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "incremental": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
+    "**/*.js",
     "**/*.ts",
-    "**/*.js"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"
