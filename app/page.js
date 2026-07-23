@@ -1,15 +1,71 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import gamesMap from '../games.json';
 
 export default function Home() {
   const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const searchWrapperRef = useRef(null);
 
-  // 🔍 클라이언트 & 백엔드 유연한 부분 검색 헬퍼 (예: "아크" -> "아크 서바이벌", "사이버" -> "사이버펑크")
+  // 🔍 입력 변경 시 실시간 연관 검색어(Auto-Complete Suggestions) 도출
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.length < 1) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    const normInput = trimmed.replace(/\s+/g, '').toLowerCase();
+
+    // games.json에서 입력 단어가 포함된 모든 항목 검색
+    const matchedList = [];
+    const seenAppIds = new Set();
+
+    for (const key in gamesMap) {
+      const normKey = key.replace(/\s+/g, '').toLowerCase();
+      if (normKey.includes(normInput) || normInput.includes(normKey)) {
+        const appId = gamesMap[key];
+        if (!seenAppIds.has(appId)) {
+          seenAppIds.add(appId);
+          matchedList.push({
+            name: key,
+            appId: appId,
+            image: `https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${appId}/header.jpg`
+          });
+        }
+      }
+    }
+
+    if (matchedList.length > 0) {
+      setSuggestions(matchedList.slice(0, 7)); // 최대 7개 연관 검색어 노출
+      setShowDropdown(true);
+    } else {
+      setSuggestions([]);
+      setShowDropdown(false);
+    }
+  };
+
+  // 바깥 영역 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // 🔍 App ID 매핑 헬퍼
   const findAppIdFromInput = (input) => {
     const raw = input.trim();
     if (!isNaN(Number(raw))) {
@@ -17,21 +73,19 @@ export default function Home() {
     }
 
     const normInput = raw.replace(/\s+/g, '').toLowerCase();
-    
-    // 1. Exact match (완전 일치)
+
+    // 1. Exact Match
     for (const key in gamesMap) {
       if (key.replace(/\s+/g, '').toLowerCase() === normInput) {
         return gamesMap[key];
       }
     }
 
-    // 2. Partial substring match (부분 일치)
-    if (normInput.length >= 1) {
-      for (const key in gamesMap) {
-        const normKey = key.replace(/\s+/g, '').toLowerCase();
-        if (normKey.includes(normInput) || normInput.includes(normKey)) {
-          return gamesMap[key];
-        }
+    // 2. Partial Substring Match
+    for (const key in gamesMap) {
+      const normKey = key.replace(/\s+/g, '').toLowerCase();
+      if (normKey.includes(normInput) || normInput.includes(normKey)) {
+        return gamesMap[key];
       }
     }
 
@@ -45,23 +99,21 @@ export default function Home() {
       return;
     }
 
+    setShowDropdown(false);
     setError('');
     setData(null);
     setLoading(true);
 
     try {
-      // 1단계: 딕셔너리 부분 매칭으로 App ID 자동 도출
       const matchedAppId = findAppIdFromInput(q);
-      
       let fetchUrl = '';
+
       if (matchedAppId) {
         fetchUrl = `https://store.steampowered.com/api/appdetails?appids=${matchedAppId}&cc=kr&l=korean`;
       } else {
-        // 2단계: 스팀 원격 검색 API 릴레이
         fetchUrl = `/api/search?name=${encodeURIComponent(q.trim())}`;
       }
 
-      // 스팀 API 직접 또는 프록시 요청
       const response = await fetch(fetchUrl);
       const resJson = await response.json();
 
@@ -95,6 +147,12 @@ export default function Home() {
     }
   };
 
+  const handleSuggestionClick = (suggestedName) => {
+    setQuery(suggestedName);
+    setShowDropdown(false);
+    fetchGamePrice(suggestedName);
+  };
+
   return (
     <main style={{
       maxWidth: '600px',
@@ -103,46 +161,119 @@ export default function Home() {
       fontFamily: 'sans-serif',
       textAlign: 'center'
     }}>
-      <h1 style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '8px' }}>🎮 스팀 가격 조회</h1>
-      <p style={{ color: '#9ca3af', marginBottom: '24px' }}>
-        게임의 일부 단어(예: <b>아크</b>, <b>사이버</b>, <b>몬헌</b>, <b>레데리</b>)만 검색해도 자동으로 찾아줍니다!
+      <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px', color: '#fff' }}>🎮 스팀 가격 조회</h1>
+      <p style={{ color: '#9ca3af', marginBottom: '24px', fontSize: '15px' }}>
+        게임의 일부 단어만 입력해도 <b>검색창 아래 연관 검색어</b>가 실시간으로 표시됩니다!
       </p>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && fetchGamePrice()}
-          placeholder="게임 이름 (예: 아크, 팰월드, 사이버펑크) 입력"
-          style={{
-            flex: 1,
-            padding: '12px 16px',
-            borderRadius: '12px',
-            border: '1px solid #333',
-            backgroundColor: '#161c27',
-            color: '#fff',
-            fontSize: '16px',
-            outline: 'none'
-          }}
-        />
-        <button
-          onClick={() => fetchGamePrice()}
-          style={{
-            padding: '12px 24px',
-            borderRadius: '12px',
-            border: 'none',
-            backgroundColor: '#3b82f6',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: '15px',
-            cursor: 'pointer'
-          }}
-        >
-          검색
-        </button>
+      {/* 검색창 및 실시간 연관 검색어 드롭다운 Wrapper */}
+      <div ref={searchWrapperRef} style={{ position: 'relative', width: '100%', marginBottom: '16px' }}>
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          backgroundColor: '#161c27',
+          padding: '8px',
+          borderRadius: '16px',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+        }}>
+          <input
+            type="text"
+            value={query}
+            onChange={handleInputChange}
+            onFocus={() => query.trim() && suggestions.length > 0 && setShowDropdown(true)}
+            onKeyDown={(e) => e.key === 'Enter' && fetchGamePrice()}
+            placeholder="게임 이름 입력 (예: 아크, 사이버, 몬헌)"
+            autoComplete="off"
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: 'transparent',
+              color: '#fff',
+              fontSize: '16px',
+              outline: 'none'
+            }}
+          />
+          <button
+            onClick={() => fetchGamePrice()}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: '#3b82f6',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: '15px',
+              cursor: 'pointer'
+            }}
+          >
+            검색
+          </button>
+        </div>
+
+        {/* 💡 검색창 바로 아래 실시간 연관 검색어 드롭다운 (Auto-Complete Suggestions Dropdown) */}
+        {showDropdown && suggestions.length > 0 && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            marginTop: '8px',
+            backgroundColor: 'rgba(22, 28, 39, 0.98)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(59, 130, 246, 0.4)',
+            borderRadius: '14px',
+            overflow: 'hidden',
+            zIndex: 100,
+            boxShadow: '0 20px 30px rgba(0, 0, 0, 0.7)',
+            textAlign: 'left'
+          }}>
+            <div style={{
+              padding: '8px 16px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              color: '#3b82f6',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)'
+            }}>
+              🔍 연관 검색어 ({suggestions.length}개)
+            </div>
+            {suggestions.map((item, idx) => (
+              <div
+                key={idx}
+                onClick={() => handleSuggestionClick(item.name)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  cursor: 'pointer',
+                  borderBottom: idx === suggestions.length - 1 ? 'none' : '1px solid rgba(255, 255, 255, 0.05)',
+                  transition: 'backgroundColor 0.15s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={{ width: '48px', height: '22px', objectFit: 'cover', borderRadius: '4px' }}
+                />
+                <span style={{ fontSize: '15px', fontWeight: '500', color: '#f3f4f6', flex: 1 }}>
+                  {item.name}
+                </span>
+                <span style={{ fontSize: '13px', color: '#66c0f4', fontWeight: 'bold' }}>
+                  선택 ➔
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
+      {/* Quick Chips */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', marginBottom: '24px' }}>
         {['아크', '사이버', '팰월드', '몬헌', '레데리', '발더스'].map((chip) => (
           <span
@@ -189,7 +320,7 @@ export default function Home() {
           marginTop: '16px'
         }}>
           <img src={data.headerImage} alt={data.name} style={{ width: '100%', borderRadius: '8px', marginBottom: '12px' }} />
-          <h2 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 8px 0' }}>{data.name}</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#fff' }}>{data.name}</h2>
           <p style={{ fontSize: '20px', color: '#66c0f4', fontWeight: 'bold', margin: '12px 0 0 0' }}>
             가격: {data.price} {data.discountPercent > 0 && `(-${data.discountPercent}%)`}
           </p>

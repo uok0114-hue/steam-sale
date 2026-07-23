@@ -182,6 +182,26 @@ app.get('/api/search', async (req, res) => {
       return res.status(404).json({ error: '게임 상세 정보(가격/이미지)를 불러오지 못했습니다.' });
     }
 
+    // 연관 검색어 목록이 없으면 games.json에서 검색어가 들어간 게임들을 suggestions로 리턴
+    if (suggestions.length === 0 && normalizedInput.length >= 1) {
+      const seen = new Set();
+      for (const key in gameMap) {
+        const normKey = normalizeString(key);
+        if (normKey.includes(normalizedInput) || normalizedInput.includes(normKey)) {
+          const id = gameMap[key];
+          if (!seen.has(id)) {
+            seen.add(id);
+            suggestions.push({
+              appId: id,
+              name: key,
+              tinyImage: `https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${id}/header.jpg`,
+              price: '조회 가능'
+            });
+          }
+        }
+      }
+    }
+
     res.json({
       appId: appId,
       name: data.name,
