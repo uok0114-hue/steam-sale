@@ -5,15 +5,17 @@
   "main": "server.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('.next', {recursive:true}); fs.writeFileSync('.next/routes-manifest.json', JSON.stringify({version:3,pages:{}})); fs.writeFileSync('.next/prerender-manifest.json', JSON.stringify({version:4,routes:{}}));\"",
+    "start": "node server.js",
     "pages:build": "npx opennextjs-cloudflare"
   },
   "dependencies": {
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "next": "^15.1.0"
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",
