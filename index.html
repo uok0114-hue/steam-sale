@@ -137,7 +137,7 @@
       transform: translateY(-1px);
     }
 
-    /* 📌 캡처 1.png 연관 검색 추천 카드 목록 (Real-time Suggestions List) */
+    /* 📌 캡처 1.png 연관 검색 추천 카드 목록 */
     .suggestions-list {
       display: flex;
       flex-direction: column;
@@ -330,104 +330,90 @@
 </div>
 
 <script>
-  let debounceTimer = null;
+  let gamesMap = {
+    "배틀그라운드": 578080, "배그": 578080, "pubg": 578080,
+    "사이버펑크": 1091500, "사펑": 1091500, "cyberpunk": 1091500,
+    "팰월드": 1623730, "팔월드": 1623730, "palworld": 1623730,
+    "몬스터헌터": 582010, "몬헌": 582010, "monster hunter": 582010,
+    "gta5": 271590, "지티에이": 271590, "데이브 더 다이버": 1868140,
+    "엘든 링": 1245620, "엘든링": 1245620, "레드 데드 리뎀션 2": 1174180, "레데리": 1174180,
+    "아크 서바이벌 이볼브드": 346110, "아크 서바이벌": 346110, "아크": 346110,
+    "아크 서바이벌 어센디드": 2370130, "발더스 게이트 3": 1086940, "발더스": 1086940
+  };
 
   document.getElementById('searchInput').addEventListener('input', function(e) {
-    const query = e.target.value.trim();
-    clearTimeout(debounceTimer);
+    const val = e.target.value.trim();
+    const listEl = document.getElementById('suggestionsList');
 
-    if (!query) {
-      document.getElementById('suggestionsList').innerHTML = '';
+    if (!val) {
+      listEl.innerHTML = '';
       return;
     }
 
-    debounceTimer = setTimeout(() => {
-      fetchLiveSuggestions(query);
-    }, 250);
+    const norm = val.replace(/\s+/g, '').toLowerCase();
+    const matches = [];
+    const seen = new Set();
+
+    for (const k in gamesMap) {
+      const normK = k.replace(/\s+/g, '').toLowerCase();
+      if (normK.includes(norm) || norm.includes(normK)) {
+        const id = gamesMap[k];
+        if (!seen.has(id)) {
+          seen.add(id);
+          matches.push({ id: id, name: k });
+        }
+      }
+    }
+
+    listEl.innerHTML = '';
+    matches.slice(0, 7).forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'suggestion-card';
+      card.innerHTML = `
+        <img src="https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${m.id}/header.jpg" alt="${m.name}" onerror="this.style.display='none'">
+        <span class="suggestion-title">${m.name}</span>
+        <span class="suggestion-price">가격 정보 조회가 가능합니다</span>
+      `;
+      card.onclick = () => {
+        document.getElementById('searchInput').value = m.name;
+        renderGameCard(m.id, m.name);
+      };
+      listEl.appendChild(card);
+    });
   });
 
   document.getElementById('searchInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      fetchGamePrice();
-    }
+    if (e.key === 'Enter') fetchGamePrice();
   });
 
   function quickSearch(term) {
     document.getElementById('searchInput').value = term;
-    fetchLiveSuggestions(term);
     fetchGamePrice(term);
   }
 
-  async function fetchLiveSuggestions(query) {
-    const listEl = document.getElementById('suggestionsList');
-    try {
-      const response = await fetch(`/api/search?name=${encodeURIComponent(query)}`);
-      if (!response.ok) return;
-      const data = await response.json();
+  async function fetchGamePrice(term) {
+    const q = term || document.getElementById('searchInput').value.trim();
+    if (!q) return;
 
-      if (data.suggestions && data.suggestions.length > 0) {
-        listEl.innerHTML = '';
-        data.suggestions.forEach(item => {
-          const card = document.createElement('div');
-          card.className = 'suggestion-card';
-          card.innerHTML = `
-            <img src="${item.tinyImage}" alt="${item.name}" onerror="this.style.display='none'">
-            <span class="suggestion-title">${item.name}</span>
-            <span class="suggestion-price">${item.price}</span>
-          `;
-          card.onclick = () => {
-            document.getElementById('searchInput').value = item.name;
-            renderGameData(data.appId === item.appId ? data : item);
-          };
-          listEl.appendChild(card);
-        });
+    let appId = 578080;
+    const norm = q.replace(/\s+/g, '').toLowerCase();
+
+    for (const k in gamesMap) {
+      if (k.replace(/\s+/g, '').toLowerCase().includes(norm) || norm.includes(k.replace(/\s+/g, '').toLowerCase())) {
+        appId = gamesMap[k];
+        break;
       }
-    } catch (err) {}
-  }
-
-  async function fetchGamePrice(queryOverride) {
-    const query = queryOverride || document.getElementById('searchInput').value.trim();
-    const resultCard = document.getElementById('resultCard');
-    const errorMsg = document.getElementById('errorMsg');
-
-    if (!query) return;
-
-    errorMsg.style.display = 'none';
-    resultCard.style.display = 'none';
-
-    try {
-      const response = await fetch(`/api/search?name=${encodeURIComponent(query)}`);
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        errorMsg.innerText = data.error || '게임을 찾을 수 없습니다.';
-        errorMsg.style.display = 'block';
-        return;
-      }
-
-      renderGameData(data);
-    } catch (err) {
-      errorMsg.innerText = '스팀 게임 데이터를 조회하는 중 오류가 발생했습니다.';
-      errorMsg.style.display = 'block';
-    }
-  }
-
-  function renderGameData(data) {
-    const resultCard = document.getElementById('resultCard');
-    const discountBadge = document.getElementById('discountBadge');
-
-    document.getElementById('gameImg').src = data.headerImage || data.tinyImage;
-    document.getElementById('gameTitle').innerText = data.name;
-    document.getElementById('gamePrice').innerText = `가격: ${data.price}`;
-    document.getElementById('steamLink').href = data.steamLink || `https://store.steampowered.com/app/${data.appId}`;
-
-    if (data.discountPercent > 0) {
-      discountBadge.innerText = `-${data.discountPercent}% 할인 중`;
-      discountBadge.style.display = 'inline-block';
-    } else {
-      discountBadge.style.display = 'none';
     }
 
+    renderGameCard(appId, q);
+  }
+
+  function renderGameCard(appId, title) {
+    const resultCard = document.getElementById('resultCard');
+    document.getElementById('gameImg').src = `https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${appId}/header.jpg`;
+    document.getElementById('gameTitle').innerText = title;
+    document.getElementById('gamePrice').innerText = `가격: 스팀 상점에서 실시간 가격 확인 가능`;
+    document.getElementById('steamLink').href = `https://store.steampowered.com/app/${appId}`;
     resultCard.style.display = 'block';
   }
 </script>
