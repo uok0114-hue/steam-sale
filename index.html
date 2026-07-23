@@ -14,11 +14,11 @@
   <style>
     :root {
       --bg-dark: #0b0e14;
-      --card-bg: rgba(22, 28, 39, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
+      --card-bg: #121824;
+      --card-border: #1e293b;
       --accent-blue: #3b82f6;
       --accent-cyan: #06b6d4;
-      --steam-blue: #66c0f4;
+      --steam-blue: #38bdf8;
       --steam-discount: #a4d007;
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
@@ -31,8 +31,8 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: radial-gradient(circle at 50% 0%, #1a2333 0%, var(--bg-dark) 75%);
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1a2333 0%, var(--bg-dark) 85%);
       min-height: 100vh;
       color: var(--text-main);
       display: flex;
@@ -44,10 +44,13 @@
 
     .container {
       width: 100%;
-      max-width: 600px;
+      max-width: 650px;
       margin: 0 auto;
+    }
+
+    .header-section {
       text-align: center;
-      position: relative;
+      margin-bottom: 24px;
     }
 
     .header-badge {
@@ -61,7 +64,7 @@
       font-size: 13px;
       color: var(--steam-blue);
       font-weight: 500;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     h1 {
@@ -72,38 +75,30 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 8px;
-      letter-spacing: -0.02em;
     }
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 14.5px;
-      margin-bottom: 24px;
+      font-size: 15px;
       line-height: 1.5;
     }
 
-    /* Search Container with Autocomplete Dropdown */
-    .search-wrapper {
-      position: relative;
-      width: 100%;
-      margin-bottom: 16px;
-    }
-
+    /* 📌 캡처 1.png 스타일 둥근 캡슐 검색 박스 */
     .search-box {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 8px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 24px;
+      padding: 10px 14px;
       display: flex;
-      gap: 8px;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
     }
 
     .search-box:focus-within {
-      border-color: rgba(59, 130, 246, 0.5);
-      box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.6);
     }
 
     input[type="text"] {
@@ -111,14 +106,15 @@
       background: transparent;
       border: none;
       outline: none;
-      padding: 12px 16px;
-      font-size: 16px;
+      padding: 10px 14px;
+      font-size: 17px;
+      font-weight: 500;
       color: #fff;
       font-family: inherit;
     }
 
     input[type="text"]::placeholder {
-      color: #6b7280;
+      color: #64748b;
     }
 
     button.btn-search {
@@ -126,16 +122,14 @@
       color: #fff;
       border: none;
       outline: none;
-      padding: 12px 24px;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 12px;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
       white-space: nowrap;
+      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
     button.btn-search:hover {
@@ -143,67 +137,55 @@
       transform: translateY(-1px);
     }
 
-    button.btn-search:active {
-      transform: translateY(0);
+    /* 📌 캡처 1.png 연관 검색 추천 카드 목록 (Real-time Suggestions List) */
+    .suggestions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
     }
 
-    /* Autocomplete Dropdown List */
-    .autocomplete-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      margin-top: 8px;
-      background: rgba(17, 24, 39, 0.96);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      overflow: hidden;
-      z-index: 50;
-      box-shadow: 0 20px 30px rgba(0,0,0,0.6);
-      display: none;
-      text-align: left;
-    }
-
-    .dropdown-item {
+    .suggestion-card {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
+      gap: 14px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 12px 18px;
       cursor: pointer;
-      transition: background 0.15s;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    .dropdown-item:last-child {
-      border-bottom: none;
+    .suggestion-card:hover {
+      border-color: var(--accent-blue);
+      background: #1e293b;
     }
 
-    .dropdown-item:hover {
-      background: rgba(59, 130, 246, 0.18);
-    }
-
-    .dropdown-item img {
-      width: 48px;
-      height: 22px;
+    .suggestion-card img {
+      width: 64px;
+      height: 30px;
       object-fit: cover;
-      border-radius: 4px;
+      border-radius: 6px;
+      background: #1e293b;
     }
 
-    .dropdown-title {
+    .suggestion-title {
       flex: 1;
-      font-size: 14px;
-      font-weight: 500;
-      color: #e5e7eb;
+      font-size: 16px;
+      font-weight: 600;
+      color: #f3f4f6;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .dropdown-price {
-      font-size: 13px;
-      font-weight: 600;
+    .suggestion-price {
+      font-size: 14px;
+      font-weight: 700;
       color: var(--steam-blue);
+      white-space: nowrap;
     }
 
     /* Quick Chips */
@@ -217,7 +199,7 @@
 
     .chip {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       padding: 6px 14px;
       border-radius: 9999px;
       font-size: 13px;
@@ -232,214 +214,117 @@
       color: #fff;
     }
 
-    /* Loading Spinner */
-    .loading-spinner {
-      display: none;
-      margin: 30px auto;
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      border-top-color: var(--accent-blue);
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     /* Result Card */
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 24px;
       padding: 24px;
-      margin-top: 10px;
+      margin-top: 16px;
       display: none;
       text-align: left;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-      animation: fadeInUp 0.35s ease-out forwards;
-      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(15px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .card-img-wrapper {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .card img {
+    .card img.header-img {
       width: 100%;
-      height: auto;
-      display: block;
-      transition: transform 0.3s ease;
-    }
-
-    .card:hover img {
-      transform: scale(1.02);
-    }
-
-    .discount-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: var(--steam-discount);
-      color: #171a21;
-      font-weight: 800;
-      font-size: 16px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      margin-bottom: 16px;
     }
 
     .game-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       color: #fff;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .genres-wrapper {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 16px;
-    }
-
-    .genre-tag {
-      font-size: 11px;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 3px 8px;
-      border-radius: 4px;
-      color: #d1d5db;
-    }
-
-    .price-container {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 12px;
     }
 
     .price-final {
       font-size: 24px;
       font-weight: 800;
       color: var(--steam-blue);
-      font-family: 'Outfit', sans-serif;
     }
 
-    .price-initial {
-      font-size: 15px;
-      color: #6b7280;
-      text-decoration: line-through;
+    .discount-badge {
+      background: var(--steam-discount);
+      color: #171a21;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-left: 8px;
     }
 
     .steam-link-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
       width: 100%;
-      margin-top: 16px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #fff;
+      margin-top: 20px;
+      padding: 14px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 16px;
+      color: var(--steam-blue);
       text-decoration: none;
-      padding: 11px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-
-    .steam-link-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+      font-size: 15px;
+      font-weight: 700;
     }
 
     .error-msg {
       display: none;
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(239, 68, 68, 0.15);
       border: 1px solid rgba(239, 68, 68, 0.3);
       color: #fca5a5;
       padding: 14px 18px;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: 14px;
       margin-top: 16px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="header-badge">
-    🔍 이름 & App ID 검색 지원
-  </div>
-  <h1>🎮 스팀 가격 검색기</h1>
-  <p class="subtitle">게임 이름(예: 팰월드, 사이버펑크, 배틀그라운드)이나 App ID를 입력하세요.</p>
-
-  <!-- 검색 박스 및 연관 검색 드롭다운 -->
-  <div class="search-wrapper">
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="게임 이름 또는 App ID 입력" autocomplete="off">
-      <button class="btn-search" onclick="fetchGamePrice()">
-        <span>검색</span>
-      </button>
-    </div>
-    <!-- 자동완성 드롭다운 -->
-    <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+  <div class="header-section">
+    <div class="header-badge">⚡ 스팀 실시간 연관 추천 가격 검색기</div>
+    <h1>🎮 스팀 가격 조회</h1>
+    <p class="subtitle">유사한 글자를 입력하면 아래에 관련 연관 게임이 실시간으로 추천됩니다!</p>
   </div>
 
-  <!-- 추천 칩 -->
+  <!-- 📌 캡처 1.png 둥근 캡슐 검색창 -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="게임 이름 입력 (예: 아크, 사이버, 몬헌)" autocomplete="off">
+    <button class="btn-search" onclick="fetchGamePrice()">검색</button>
+  </div>
+
+  <!-- 📌 캡처 1.png 연관 추천 카드 목록 -->
+  <div id="suggestionsList" class="suggestions-list"></div>
+
+  <!-- Quick Chips -->
   <div class="quick-chips">
-    <span class="chip" onclick="quickSearch('팰월드')">팰월드</span>
-    <span class="chip" onclick="quickSearch('사이버펑크')">사이버펑크</span>
-    <span class="chip" onclick="quickSearch('배틀그라운드')">배틀그라운드</span>
-    <span class="chip" onclick="quickSearch('엘든링')">엘든 링</span>
-    <span class="chip" onclick="quickSearch('데이브 더 다이버')">데이브 더 다이버</span>
+    <span class="chip" onclick="quickSearch('아크')">#아크</span>
+    <span class="chip" onclick="quickSearch('사이버')">#사이버</span>
+    <span class="chip" onclick="quickSearch('팰월드')">#팰월드</span>
+    <span class="chip" onclick="quickSearch('몬헌')">#몬헌</span>
+    <span class="chip" onclick="quickSearch('레데리')">#레데리</span>
+    <span class="chip" onclick="quickSearch('발더스')">#발더스</span>
   </div>
-
-  <!-- 로딩 애니메이션 -->
-  <div id="loadingSpinner" class="loading-spinner"></div>
 
   <!-- 에러 메시지 -->
   <div id="errorMsg" class="error-msg"></div>
 
-  <!-- 결과 카드 -->
+  <!-- 결과 상세 카드 -->
   <div id="resultCard" class="card">
-    <div class="card-img-wrapper">
-      <img id="gameImg" src="" alt="게임 헤더 이미지">
+    <img id="gameImg" class="header-img" src="" alt="게임 이미지">
+    <h2 id="gameTitle" class="game-title"></h2>
+    <div>
+      <span id="gamePrice" class="price-final"></span>
       <span id="discountBadge" class="discount-badge" style="display: none;"></span>
     </div>
-    
-    <h2 id="gameTitle" class="game-title"></h2>
-    
-    <div id="genreTags" class="genres-wrapper"></div>
-
-    <div class="price-container">
-      <span id="gamePrice" class="price-final"></span>
-      <span id="initialPrice" class="price-initial" style="display: none;"></span>
-    </div>
-
     <a id="steamLink" href="#" target="_blank" rel="noopener noreferrer" class="steam-link-btn">
-      🛒 스팀 상점 페이지로 이동 ↗
+      🛒 스팀 공식 상점 페이지 바로가기 ➔
     </a>
   </div>
 </div>
@@ -447,163 +332,103 @@
 <script>
   let debounceTimer = null;
 
-  function quickSearch(searchTerm) {
-    document.getElementById('searchInput').value = searchTerm;
-    hideDropdown();
-    fetchGamePrice();
-  }
-
-  // 실시간 입력 연관 검색어(자동완성) 드롭다운 처리
   document.getElementById('searchInput').addEventListener('input', function(e) {
     const query = e.target.value.trim();
     clearTimeout(debounceTimer);
 
-    if (!query || query.length < 2) {
-      hideDropdown();
+    if (!query) {
+      document.getElementById('suggestionsList').innerHTML = '';
       return;
     }
 
     debounceTimer = setTimeout(() => {
-      fetchSuggestions(query);
+      fetchLiveSuggestions(query);
     }, 250);
   });
 
   document.getElementById('searchInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
-      hideDropdown();
       fetchGamePrice();
     }
   });
 
-  // 바깥 클릭 시 드롭다운 닫기
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.search-wrapper')) {
-      hideDropdown();
-    }
-  });
+  function quickSearch(term) {
+    document.getElementById('searchInput').value = term;
+    fetchLiveSuggestions(term);
+    fetchGamePrice(term);
+  }
 
-  async function fetchSuggestions(query) {
-    const dropdown = document.getElementById('autocompleteDropdown');
+  async function fetchLiveSuggestions(query) {
+    const listEl = document.getElementById('suggestionsList');
     try {
-      const response = await fetch(`http://localhost:3000/api/search?name=${encodeURIComponent(query)}`);
-      if (!response.ok) {
-        hideDropdown();
-        return;
-      }
+      const response = await fetch(`/api/search?name=${encodeURIComponent(query)}`);
+      if (!response.ok) return;
       const data = await response.json();
 
       if (data.suggestions && data.suggestions.length > 0) {
-        dropdown.innerHTML = '';
+        listEl.innerHTML = '';
         data.suggestions.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'dropdown-item';
-          div.innerHTML = `
-            <img src="${item.tinyImage}" alt="${item.name}">
-            <span class="dropdown-title">${item.name}</span>
-            <span class="dropdown-price">${item.price}</span>
+          const card = document.createElement('div');
+          card.className = 'suggestion-card';
+          card.innerHTML = `
+            <img src="${item.tinyImage}" alt="${item.name}" onerror="this.style.display='none'">
+            <span class="suggestion-title">${item.name}</span>
+            <span class="suggestion-price">${item.price}</span>
           `;
-          div.onclick = () => {
+          card.onclick = () => {
             document.getElementById('searchInput').value = item.name;
-            hideDropdown();
             renderGameData(data.appId === item.appId ? data : item);
           };
-          dropdown.appendChild(div);
+          listEl.appendChild(card);
         });
-        dropdown.style.display = 'block';
-      } else {
-        hideDropdown();
       }
-    } catch (err) {
-      hideDropdown();
-    }
+    } catch (err) {}
   }
 
-  function hideDropdown() {
-    document.getElementById('autocompleteDropdown').style.display = 'none';
-  }
-
-  async function fetchGamePrice() {
-    const query = document.getElementById('searchInput').value.trim();
+  async function fetchGamePrice(queryOverride) {
+    const query = queryOverride || document.getElementById('searchInput').value.trim();
     const resultCard = document.getElementById('resultCard');
-    const loadingSpinner = document.getElementById('loadingSpinner');
     const errorMsg = document.getElementById('errorMsg');
 
-    if (!query) {
-      showError('검색할 게임 이름 또는 App ID를 입력해 주세요!');
-      return;
-    }
+    if (!query) return;
 
-    hideDropdown();
     errorMsg.style.display = 'none';
     resultCard.style.display = 'none';
-    loadingSpinner.style.display = 'block';
 
     try {
-      let url = '';
-      // 숫자인 경우 App ID로 바로 조회, 문자인 경우 이름 검색 API 사용
-      if (!isNaN(Number(query))) {
-        url = `http://localhost:3000/api/game/${query}`;
-      } else {
-        url = `http://localhost:3000/api/search?name=${encodeURIComponent(query)}`;
-      }
-
-      const response = await fetch(url);
+      const response = await fetch(`/api/search?name=${encodeURIComponent(query)}`);
       const data = await response.json();
 
-      loadingSpinner.style.display = 'none';
-
       if (!response.ok || data.error) {
-        showError(data.error || '게임을 찾을 수 없습니다.');
+        errorMsg.innerText = data.error || '게임을 찾을 수 없습니다.';
+        errorMsg.style.display = 'block';
         return;
       }
 
       renderGameData(data);
-
     } catch (err) {
-      loadingSpinner.style.display = 'none';
-      showError('백엔드 서버(http://localhost:3000)와 통신에 실패했습니다.');
+      errorMsg.innerText = '스팀 게임 데이터를 조회하는 중 오류가 발생했습니다.';
+      errorMsg.style.display = 'block';
     }
   }
 
   function renderGameData(data) {
     const resultCard = document.getElementById('resultCard');
     const discountBadge = document.getElementById('discountBadge');
-    const initialPrice = document.getElementById('initialPrice');
-    const genreTags = document.getElementById('genreTags');
 
     document.getElementById('gameImg').src = data.headerImage || data.tinyImage;
     document.getElementById('gameTitle').innerText = data.name;
+    document.getElementById('gamePrice').innerText = `가격: ${data.price}`;
     document.getElementById('steamLink').href = data.steamLink || `https://store.steampowered.com/app/${data.appId}`;
 
-    genreTags.innerHTML = '';
-    if (data.genres && data.genres.length > 0) {
-      data.genres.forEach(g => {
-        const tag = document.createElement('span');
-        tag.className = 'genre-tag';
-        tag.innerText = g;
-        genreTags.appendChild(tag);
-      });
-    }
-
-    document.getElementById('gamePrice').innerText = data.price;
-
     if (data.discountPercent > 0) {
-      discountBadge.innerText = `-${data.discountPercent}%`;
+      discountBadge.innerText = `-${data.discountPercent}% 할인 중`;
       discountBadge.style.display = 'inline-block';
-      initialPrice.innerText = data.initialPrice;
-      initialPrice.style.display = 'inline-block';
     } else {
       discountBadge.style.display = 'none';
-      initialPrice.style.display = 'none';
     }
 
     resultCard.style.display = 'block';
-  }
-
-  function showError(msg) {
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.innerText = msg;
-    errorMsg.style.display = 'block';
   }
 </script>
 
