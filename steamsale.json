@@ -1,0 +1,30 @@
+{
+  "server": {
+    "port": 3000,
+    "env": "development",
+    "cors": {
+      "origin": "*",
+      "methods": ["GET", "POST", "PUT", "DELETE"]
+    }
+  },
+  "database": {
+    "type": "json_file",
+    "storage_path": "./data/db.json"
+  },
+  "steam_api": {
+    "base_url": "https://store.steampowered.com/api",
+    "currency": "KRW",
+    "language": "korean",
+    "sync_interval_minutes": 60
+  },
+  "notification": {
+    "channels": [
+      "kakaotalk",
+      "discord",
+      "telegram"
+    ]
+  },
+  "games": [],
+  "game_prices": [],
+  "user_wishlists": []
+}

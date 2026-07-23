@@ -1,0 +1,15 @@
+{
+  "name": "steam-sales-tracker",
+  "version": "1.0.0",
+  "description": "Steam Game Price Tracker with Node.js Express backend and UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
