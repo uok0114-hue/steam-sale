@@ -1,64 +1,14 @@
 {
   "games": [
     {
-      "app_id": 1868140,
-      "title": "데이브 더 다이버 (Dave the Diver)",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1868140/81bdb3bce15d27ca1b4554a642d91096e89be229/header.jpg?t=1782191386",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
-      "kr_positive_rate": 97,
-      "last_updated_at": "2026-07-15T06:25:39.986Z"
-    },
-    {
-      "app_id": 1091500,
-      "title": "사이버펑크 2077 (Cyberpunk 2077)",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/26b96fa9c8af43189cbecbbc329ade29d9c9cf3e/header_koreana.jpg?t=1769690377",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
-      "kr_positive_rate": 78,
-      "last_updated_at": "2026-07-15T06:25:41.476Z"
-    },
-    {
-      "app_id": 1245620,
-      "title": "엘든 링 (Elden Ring)",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1767883716",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
-      "kr_positive_rate": 92,
-      "last_updated_at": "2026-07-15T06:25:43.937Z"
-    },
-    {
-      "app_id": 1145350,
-      "title": "하데스 II (Hades II)",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145350/91ac334a2c137d08968ccc0bc474a02579602100/header.jpg?t=1779901265",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
-      "kr_positive_rate": 95,
-      "last_updated_at": "2026-07-15T06:25:46.429Z"
-    },
-    {
-      "app_id": 1966720,
-      "title": "리썰 컴퍼니 (Lethal Company)",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/header.jpg?t=1775380053",
-      "is_free": false,
-      "has_kr_patch": true,
-      "kr_patch_url": "https://github.com/B715/LethalCompany-KoreanPatch",
-      "kr_positive_rate": 96,
-      "last_updated_at": "2026-07-15T06:25:49.021Z"
-    },
-    {
       "app_id": 1623730,
       "title": "Palworld / 팰월드",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1623730/6912f19c43a95ff5fe514eedd35e68bf12335459/header.jpg?t=1783654507",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1623730/6912f19c43a95ff5fe514eedd35e68bf12335459/header.jpg?t=1784714419",
       "is_free": false,
       "has_kr_patch": false,
       "kr_patch_url": null,
-      "kr_positive_rate": 95,
-      "last_updated_at": "2026-07-15T07:32:13.657Z"
+      "kr_positive_rate": 91,
+      "last_updated_at": "2026-07-23T12:10:20.580Z"
     },
     {
       "app_id": 3240220,
@@ -67,28 +17,58 @@
       "is_free": false,
       "has_kr_patch": false,
       "kr_patch_url": null,
-      "kr_positive_rate": 83,
-      "last_updated_at": "2026-07-15T07:32:15.179Z"
-    },
-    {
-      "app_id": 1671210,
-      "title": "DELTARUNE",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1671210/7ccda5b1631d2e60cc756a3271e845dbb9168821/header.jpg?t=1782314340",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
-      "kr_positive_rate": 99,
-      "last_updated_at": "2026-07-15T07:32:15.902Z"
-    },
-    {
-      "app_id": 4380490,
-      "title": "냥냥 우체국",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4380490/cfde145bd55c0f57e8da76ce43932bcf0f2faa88/header_koreana.jpg?t=1784045214",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
       "kr_positive_rate": 92,
-      "last_updated_at": "2026-07-15T07:32:16.672Z"
+      "last_updated_at": "2026-07-23T12:10:20.920Z"
+    },
+    {
+      "app_id": 1913120,
+      "title": "Tears of Metal",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1913120/9c62adaca165c8bc1a78990419e2cb35dd940b6b/header.jpg?t=1784731614",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
+      "kr_positive_rate": 95,
+      "last_updated_at": "2026-07-23T12:10:21.283Z"
+    },
+    {
+      "app_id": 3837350,
+      "title": "스테퍼 레트로: 초능력 추리 퀘스트",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3837350/b12632f5f23c31a3e96dbbc09498ac519f213fae/header_koreana.jpg?t=1784732461",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
+      "kr_positive_rate": 98,
+      "last_updated_at": "2026-07-23T12:10:21.634Z"
+    },
+    {
+      "app_id": 1845250,
+      "title": "루비나이트",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1845250/a7dc123ed1c6bc601dbe756129329bccf47643a7/header_koreana.jpg?t=1784788602",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
+      "kr_positive_rate": 96,
+      "last_updated_at": "2026-07-23T12:10:21.959Z"
+    },
+    {
+      "app_id": 1145350,
+      "title": "Hades II",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145350/91ac334a2c137d08968ccc0bc474a02579602100/header.jpg?t=1779901265",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
+      "kr_positive_rate": 95,
+      "last_updated_at": "2026-07-23T12:10:22.291Z"
+    },
+    {
+      "app_id": 2183900,
+      "title": "Warhammer 40,000: Space Marine 2",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2183900/header.jpg?t=1780329761",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
+      "kr_positive_rate": 94,
+      "last_updated_at": "2026-07-23T12:10:22.733Z"
     },
     {
       "app_id": 1174180,
@@ -97,28 +77,58 @@
       "is_free": false,
       "has_kr_patch": false,
       "kr_patch_url": null,
+      "kr_positive_rate": 98,
+      "last_updated_at": "2026-07-23T12:10:23.079Z"
+    },
+    {
+      "app_id": 3561220,
+      "title": "Pass the Fear",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3561220/75f77fc88eaf0226ebae317a94f05000164c5cc0/header.jpg?t=1784799208",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
       "kr_positive_rate": 92,
-      "last_updated_at": "2026-07-15T07:32:17.404Z"
+      "last_updated_at": "2026-07-23T12:10:23.431Z"
     },
     {
-      "app_id": 4297840,
-      "title": "Rock Bottom",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4297840/a6aea9bda4707d8d1f0a493ab70d3dff07ba089d/header.jpg?t=1784041176",
+      "app_id": 1868140,
+      "title": "데이브 더 다이버",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1868140/81bdb3bce15d27ca1b4554a642d91096e89be229/header.jpg?t=1784533018",
       "is_free": false,
       "has_kr_patch": false,
       "kr_patch_url": null,
-      "kr_positive_rate": 100,
-      "last_updated_at": "2026-07-15T07:32:18.168Z"
+      "kr_positive_rate": 95,
+      "last_updated_at": "2026-07-23T12:10:23.983Z"
     },
     {
-      "app_id": 3159330,
-      "title": "어쌔신 크리드 섀도우스",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3159330/header_koreana.jpg?t=1775589420",
+      "app_id": 1091500,
+      "title": "Cyberpunk 2077",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/26b96fa9c8af43189cbecbbc329ade29d9c9cf3e/header_koreana.jpg?t=1784714077",
       "is_free": false,
       "has_kr_patch": false,
       "kr_patch_url": null,
-      "kr_positive_rate": 76,
-      "last_updated_at": "2026-07-15T07:32:18.908Z"
+      "kr_positive_rate": 97,
+      "last_updated_at": "2026-07-23T12:10:24.413Z"
+    },
+    {
+      "app_id": 1245620,
+      "title": "ELDEN RING",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1784684281",
+      "is_free": false,
+      "has_kr_patch": false,
+      "kr_patch_url": null,
+      "kr_positive_rate": 97,
+      "last_updated_at": "2026-07-23T12:10:24.755Z"
+    },
+    {
+      "app_id": 1966720,
+      "title": "Lethal Company",
+      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1966720/header.jpg?t=1775380053",
+      "is_free": false,
+      "has_kr_patch": true,
+      "kr_patch_url": "https://github.com/B715/LethalCompany-KoreanPatch",
+      "kr_positive_rate": 94,
+      "last_updated_at": "2026-07-23T12:10:25.098Z"
     },
     {
       "app_id": 526870,
@@ -127,71 +137,11 @@
       "is_free": false,
       "has_kr_patch": false,
       "kr_patch_url": null,
-      "kr_positive_rate": 97,
-      "last_updated_at": "2026-07-15T07:32:19.764Z"
-    },
-    {
-      "app_id": 2697940,
-      "title": "Ascend to ZERO",
-      "header_image": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2697940/2b50769aaa2d06f460a5e2ef6ef13ca9ed88305d/header.jpg?t=1784002409",
-      "is_free": false,
-      "has_kr_patch": false,
-      "kr_patch_url": null,
-      "kr_positive_rate": 88,
-      "last_updated_at": "2026-07-15T07:32:20.649Z"
+      "kr_positive_rate": 95,
+      "last_updated_at": "2026-07-23T12:10:25.449Z"
     }
   ],
   "game_prices": [
-    {
-      "app_id": 1868140,
-      "steam_price": 24000,
-      "steam_discount_percent": 0,
-      "domestic_price": 19200,
-      "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 14400,
-      "lowest_recorded_at": "2025-12-22T00:00:00Z",
-      "updated_at": "2026-07-15T06:25:39.987Z"
-    },
-    {
-      "app_id": 1091500,
-      "steam_price": 66000,
-      "steam_discount_percent": 0,
-      "domestic_price": 49500,
-      "domestic_store_name": "포기븐",
-      "lowest_recorded_price": 33000,
-      "lowest_recorded_at": "2025-11-28T00:00:00Z",
-      "updated_at": "2026-07-15T06:25:41.476Z"
-    },
-    {
-      "app_id": 1245620,
-      "steam_price": 64800,
-      "steam_discount_percent": 0,
-      "domestic_price": 58320,
-      "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 45360,
-      "lowest_recorded_at": "2026-01-05T00:00:00Z",
-      "updated_at": "2026-07-15T06:25:43.938Z"
-    },
-    {
-      "app_id": 1145350,
-      "steam_price": 32000,
-      "steam_discount_percent": 0,
-      "domestic_price": 27200,
-      "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 27200,
-      "lowest_recorded_at": "2026-07-15T06:25:46.429Z",
-      "updated_at": "2026-07-15T06:25:46.430Z"
-    },
-    {
-      "app_id": 1966720,
-      "steam_price": 11000,
-      "steam_discount_percent": 0,
-      "domestic_price": 7700,
-      "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 7700,
-      "lowest_recorded_at": "2025-12-25T00:00:00Z",
-      "updated_at": "2026-07-15T06:25:49.022Z"
-    },
     {
       "app_id": 1623730,
       "steam_price": 22400,
@@ -199,8 +149,8 @@
       "domestic_price": 19040,
       "domestic_store_name": "다이렉트게임즈",
       "lowest_recorded_price": 19040,
-      "lowest_recorded_at": "2026-07-15T07:32:13.656Z",
-      "updated_at": "2026-07-15T07:32:13.658Z"
+      "lowest_recorded_at": "2026-07-23T12:10:20.581Z",
+      "updated_at": "2026-07-23T12:10:20.581Z"
     },
     {
       "app_id": 3240220,
@@ -209,28 +159,58 @@
       "domestic_price": 15632,
       "domestic_store_name": "다이렉트게임즈",
       "lowest_recorded_price": 15632,
-      "lowest_recorded_at": "2026-07-15T07:32:14.420Z",
-      "updated_at": "2026-07-15T07:32:15.180Z"
+      "lowest_recorded_at": "2026-07-23T12:10:20.920Z",
+      "updated_at": "2026-07-23T12:10:20.920Z"
     },
     {
-      "app_id": 1671210,
-      "steam_price": 23840,
-      "steam_discount_percent": 20,
-      "domestic_price": 20264,
+      "app_id": 1913120,
+      "steam_price": 23850,
+      "steam_discount_percent": 10,
+      "domestic_price": 20273,
       "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 20264,
-      "lowest_recorded_at": "2026-07-15T07:32:15.901Z",
-      "updated_at": "2026-07-15T07:32:15.902Z"
+      "lowest_recorded_price": 20273,
+      "lowest_recorded_at": "2026-07-23T12:10:21.283Z",
+      "updated_at": "2026-07-23T12:10:21.283Z"
     },
     {
-      "app_id": 4380490,
-      "steam_price": 9350,
-      "steam_discount_percent": 15,
-      "domestic_price": null,
-      "domestic_store_name": null,
-      "lowest_recorded_price": 9350,
-      "lowest_recorded_at": "2026-07-15T07:32:16.672Z",
-      "updated_at": "2026-07-15T07:32:16.673Z"
+      "app_id": 3837350,
+      "steam_price": 28800,
+      "steam_discount_percent": 10,
+      "domestic_price": 24480,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 24480,
+      "lowest_recorded_at": "2026-07-23T12:10:21.634Z",
+      "updated_at": "2026-07-23T12:10:21.634Z"
+    },
+    {
+      "app_id": 1845250,
+      "steam_price": 19800,
+      "steam_discount_percent": 10,
+      "domestic_price": 16830,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 16830,
+      "lowest_recorded_at": "2026-07-23T12:10:21.959Z",
+      "updated_at": "2026-07-23T12:10:21.959Z"
+    },
+    {
+      "app_id": 1145350,
+      "steam_price": 22400,
+      "steam_discount_percent": 30,
+      "domestic_price": 19040,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 19040,
+      "lowest_recorded_at": "2026-07-23T12:10:22.292Z",
+      "updated_at": "2026-07-23T12:10:22.292Z"
+    },
+    {
+      "app_id": 2183900,
+      "steam_price": 20940,
+      "steam_discount_percent": 70,
+      "domestic_price": 17799,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 17799,
+      "lowest_recorded_at": "2026-07-23T12:10:22.733Z",
+      "updated_at": "2026-07-23T12:10:22.733Z"
     },
     {
       "app_id": 1174180,
@@ -239,28 +219,58 @@
       "domestic_price": 15513,
       "domestic_store_name": "다이렉트게임즈",
       "lowest_recorded_price": 15513,
-      "lowest_recorded_at": "2026-07-15T07:32:17.404Z",
-      "updated_at": "2026-07-15T07:32:17.405Z"
+      "lowest_recorded_at": "2026-07-23T12:10:23.079Z",
+      "updated_at": "2026-07-23T12:10:23.079Z"
     },
     {
-      "app_id": 4297840,
-      "steam_price": 7830,
+      "app_id": 3561220,
+      "steam_price": 16200,
       "steam_discount_percent": 10,
-      "domestic_price": null,
-      "domestic_store_name": null,
-      "lowest_recorded_price": 7830,
-      "lowest_recorded_at": "2026-07-15T07:32:18.168Z",
-      "updated_at": "2026-07-15T07:32:18.169Z"
+      "domestic_price": 13770,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 13770,
+      "lowest_recorded_at": "2026-07-23T12:10:23.431Z",
+      "updated_at": "2026-07-23T12:10:23.431Z"
     },
     {
-      "app_id": 3159330,
-      "steam_price": 35550,
-      "steam_discount_percent": 55,
-      "domestic_price": 30218,
+      "app_id": 1868140,
+      "steam_price": 24000,
+      "steam_discount_percent": 0,
+      "domestic_price": 20400,
       "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 30218,
-      "lowest_recorded_at": "2026-07-15T07:32:18.908Z",
-      "updated_at": "2026-07-15T07:32:18.909Z"
+      "lowest_recorded_price": 20400,
+      "lowest_recorded_at": "2026-07-23T12:10:23.983Z",
+      "updated_at": "2026-07-23T12:10:23.983Z"
+    },
+    {
+      "app_id": 1091500,
+      "steam_price": 66000,
+      "steam_discount_percent": 0,
+      "domestic_price": 56100,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 56100,
+      "lowest_recorded_at": "2026-07-23T12:10:24.413Z",
+      "updated_at": "2026-07-23T12:10:24.413Z"
+    },
+    {
+      "app_id": 1245620,
+      "steam_price": 64800,
+      "steam_discount_percent": 0,
+      "domestic_price": 55080,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 55080,
+      "lowest_recorded_at": "2026-07-23T12:10:24.755Z",
+      "updated_at": "2026-07-23T12:10:24.755Z"
+    },
+    {
+      "app_id": 1966720,
+      "steam_price": 11000,
+      "steam_discount_percent": 0,
+      "domestic_price": 9350,
+      "domestic_store_name": "다이렉트게임즈",
+      "lowest_recorded_price": 9350,
+      "lowest_recorded_at": "2026-07-23T12:10:25.098Z",
+      "updated_at": "2026-07-23T12:10:25.098Z"
     },
     {
       "app_id": 526870,
@@ -269,18 +279,8 @@
       "domestic_price": 24990,
       "domestic_store_name": "다이렉트게임즈",
       "lowest_recorded_price": 24990,
-      "lowest_recorded_at": "2026-07-15T07:32:19.764Z",
-      "updated_at": "2026-07-15T07:32:19.765Z"
-    },
-    {
-      "app_id": 2697940,
-      "steam_price": 10400,
-      "steam_discount_percent": 20,
-      "domestic_price": 8840,
-      "domestic_store_name": "다이렉트게임즈",
-      "lowest_recorded_price": 8840,
-      "lowest_recorded_at": "2026-07-15T07:32:20.649Z",
-      "updated_at": "2026-07-15T07:32:20.650Z"
+      "lowest_recorded_at": "2026-07-23T12:10:25.449Z",
+      "updated_at": "2026-07-23T12:10:25.449Z"
     }
   ],
   "user_wishlists": []
