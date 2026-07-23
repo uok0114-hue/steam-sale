@@ -96,11 +96,24 @@ app.get('/api/search', async (req, res) => {
   let suggestions = [];
 
   // --- 1단계: 로컬 한국어/별칭 매핑 딕셔너리 매칭 ---
+  // 1-1. 정확히 일치 (Exact Match)
   for (const key in gameMap) {
     if (normalizeString(key) === normalizedInput) {
       appId = gameMap[key];
-      console.log(`⚡ [1단계 딕셔너리 매칭 성공] 키: "${key}" -> AppID: ${appId}`);
+      console.log(`⚡ [1단계 딕셔너리 완전매칭 성공] 키: "${key}" -> AppID: ${appId}`);
       break;
+    }
+  }
+
+  // 1-2. 부분 포함 일치 (Partial Substring Match: "아크" -> "아크 서바이벌", "사이버" -> "사이버펑크")
+  if (!appId && normalizedInput.length >= 2) {
+    for (const key in gameMap) {
+      const normKey = normalizeString(key);
+      if (normKey.includes(normalizedInput) || normalizedInput.includes(normKey)) {
+        appId = gameMap[key];
+        console.log(`⚡ [1단계 딕셔너리 부분매칭 성공] 입력: "${rawInput}" (매칭된 키: "${key}") -> AppID: ${appId}`);
+        break;
+      }
     }
   }
 
