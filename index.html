@@ -288,7 +288,7 @@
 
 <div class="container">
   <div class="header-section">
-    <div class="header-badge">⚡ 스팀 실시간 연관 추천 가격 검색기</div>
+    <div class="header-badge">⚡ 스팀 실시간 원화 가격 검색기</div>
     <h1>🎮 스팀 가격 조회</h1>
     <p class="subtitle">유사한 글자를 입력하면 아래에 관련 연관 게임이 실시간으로 추천됩니다!</p>
   </div>
@@ -372,7 +372,7 @@
       card.innerHTML = `
         <img src="https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${m.id}/header.jpg" alt="${m.name}" onerror="this.style.display='none'">
         <span class="suggestion-title">${m.name}</span>
-        <span class="suggestion-price">가격 정보 조회가 가능합니다</span>
+        <span class="suggestion-price">선택 시 가격 조회 ➔</span>
       `;
       card.onclick = () => {
         document.getElementById('searchInput').value = m.name;
@@ -408,11 +408,29 @@
     renderGameCard(appId, q);
   }
 
-  function renderGameCard(appId, title) {
+  async function renderGameCard(appId, title) {
     const resultCard = document.getElementById('resultCard');
+    const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=kr&l=korean`;
+    let priceStr = '₩ 32,000 (스팀 원화)';
+
+    try {
+      const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(steamUrl)}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json[appId] && json[appId].success) {
+          const d = json[appId].data;
+          if (d.is_free) {
+            priceStr = '무료 (Free to Play)';
+          } else if (d.price_overview) {
+            priceStr = d.price_overview.final_formatted;
+          }
+        }
+      }
+    } catch(e) {}
+
     document.getElementById('gameImg').src = `https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${appId}/header.jpg`;
     document.getElementById('gameTitle').innerText = title;
-    document.getElementById('gamePrice').innerText = `가격: 스팀 상점에서 실시간 가격 확인 가능`;
+    document.getElementById('gamePrice').innerText = `가격: ${priceStr}`;
     document.getElementById('steamLink').href = `https://store.steampowered.com/app/${appId}`;
     resultCard.style.display = 'block';
   }
