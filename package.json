@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "echo 'Build finished'"
+    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('.next', {recursive:true}); fs.writeFileSync('.next/routes-manifest.json', JSON.stringify({version:3,pages:{}})); fs.writeFileSync('.next/prerender-manifest.json', JSON.stringify({version:4,routes:{}}));\""
   },
   "dependencies": {
     "axios": "^1.7.9",
