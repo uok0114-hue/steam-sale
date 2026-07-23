@@ -47,28 +47,12 @@ export default function Home() {
     <main style={{
       maxWidth: '600px',
       margin: '40px auto',
-      padding: '24px 16px',
-      textAlign: 'center',
-      fontFamily: 'system-ui, sans-serif'
+      padding: '20px',
+      fontFamily: 'sans-serif',
+      textAlign: 'center'
     }}>
-      <div style={{
-        display: 'inline-block',
-        padding: '6px 14px',
-        borderRadius: '9999px',
-        backgroundColor: 'rgba(59, 130, 246, 0.15)',
-        color: '#66c0f4',
-        fontSize: '13px',
-        marginBottom: '16px'
-      }}>
-        ⚡ 스팀 가격 조회 서비스
-      </div>
-
-      <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>
-        🎮 스팀 게임 가격 조회기
-      </h1>
-      <p style={{ color: '#9ca3af', fontSize: '15px', marginBottom: '24px' }}>
-        게임 이름(예: 팰월드, 사이버펑크, 배틀그라운드)이나 App ID를 입력하세요.
-      </p>
+      <h1>🎮 스팀 가격 조회</h1>
+      <p style={{ color: '#9ca3af', marginBottom: '24px' }}>서버가 정상적으로 작동 중입니다.</p>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <input
@@ -81,7 +65,7 @@ export default function Home() {
             flex: 1,
             padding: '12px 16px',
             borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
+            border: '1px solid #333',
             backgroundColor: '#161c27',
             color: '#fff',
             fontSize: '16px',
