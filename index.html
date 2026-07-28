@@ -138,44 +138,6 @@
             font-size: 15px;
         }
 
-        /* 📌 🔥 오늘의 미친 할인 (Hot Deals) 섹션 */
-        .hotdeals-section {
-            margin-bottom: 45px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-            padding: 0 4px;
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-title);
-        }
-
-        .hot-badge-pill {
-            font-size: 12px;
-            padding: 4px 10px;
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: #ffffff;
-            border-radius: 20px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
-        }
-
-        .section-desc {
-            font-size: 14px;
-            color: var(--text-sub);
-        }
-
         /* 📌 검색 바 & brivyy 스타일 퀵 태그 */
         .search-section {
             max-width: 720px;
@@ -287,6 +249,58 @@
             border-color: rgba(59, 130, 246, 0.4);
             color: var(--accent-light-blue);
             transform: translateY(-2px);
+        }
+
+        /* 📌 🔥 오늘의 미친 할인 (Hot Deals) 섹션 */
+        .hotdeals-section {
+            margin-bottom: 45px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding: 0 4px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-title);
+        }
+
+        .hot-badge-pill {
+            font-size: 12px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            border-radius: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+        }
+
+        .section-desc {
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        /* 카드뉴스 스타일 전용 4열 그리드 */
+        .hotdeals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        @media (min-width: 1024px) {
+            .hotdeals-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         /* 📌 상태 메시지 안내 */
@@ -557,16 +571,16 @@
             </div>
         </section>
 
-        <!-- 📌 🔥 오늘의 미친 할인 (Hot Deals) 섹션 -->
+        <!-- 📌 🔥 오늘의 미친 할인 (Hot Deals) 카드뉴스 섹션 -->
         <section id="hotdeals-section" class="hotdeals-section">
             <div class="section-header">
                 <div class="section-title">
                     <span>🔥 오늘의 미친 할인</span>
-                    <span class="hot-badge-pill">HOT DEALS</span>
+                    <span class="hot-badge-pill">HOT DEALS 40%+</span>
                 </div>
-                <span class="section-desc">지금 이 시각 게이머들이 가장 많이 찾는 추천 인기 대작</span>
+                <span class="section-desc">할인율 40% 이상 추천 파격 할인 대작 (랜덤 4선)</span>
             </div>
-            <div id="hotdeals-grid" class="games-grid"></div>
+            <div id="hotdeals-grid" class="hotdeals-grid"></div>
         </section>
 
         <!-- 📌 검색 상태 안내 -->
@@ -607,16 +621,28 @@
         const clearBtn = document.getElementById('clear-btn');
         const statusBar = document.getElementById('status-bar');
         const gamesGrid = document.getElementById('games-grid');
+        const hotdealsSection = document.getElementById('hotdeals-section');
         const hotdealsGrid = document.getElementById('hotdeals-grid');
 
-        // Clear(X) 버튼 토글
+        // Clear(X) 버튼 토글 및 검색창 비워지면 핫딜 복원
         searchInput.addEventListener('input', () => {
-            clearBtn.style.display = searchInput.value.trim() ? 'block' : 'none';
+            const val = searchInput.value.trim();
+            clearBtn.style.display = val ? 'block' : 'none';
+
+            // 검색어가 완전히 지워지면 핫딜 섹션 복원 및 검색 결과 초기화
+            if (!val) {
+                hotdealsSection.style.display = 'block';
+                gamesGrid.innerHTML = '';
+                statusBar.textContent = "원하는 게임을 검색하면 결과가 표시됩니다.";
+            }
         });
 
         clearBtn.addEventListener('click', () => {
             searchInput.value = '';
             clearBtn.style.display = 'none';
+            hotdealsSection.style.display = 'block';
+            gamesGrid.innerHTML = '';
+            statusBar.textContent = "원하는 게임을 검색하면 결과가 표시됩니다.";
             searchInput.focus();
         });
 
@@ -628,7 +654,7 @@
         }
 
         // 스켈레톤 로딩 렌더링
-        function renderSkeletons(container, count = 6) {
+        function renderSkeletons(container, count = 4) {
             container.innerHTML = '';
             for (let i = 0; i < count; i++) {
                 const skel = document.createElement('div');
@@ -697,53 +723,76 @@
             return card;
         }
 
-        // 📌 🔥 오늘의 미친 할인 (Hot Deals) 로드 함수
+        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 할인율 40%+ 이상 인기 게임 4개 랜덤 추출 렌더링
         async function loadHotDeals() {
-            renderSkeletons(hotdealsGrid, 6);
+            renderSkeletons(hotdealsGrid, 4);
             try {
                 const res = await fetch('/api?type=hotdeals');
                 const data = await res.json();
 
-                hotdealsGrid.innerHTML = '';
+                const validGames = [];
                 for (const appId in data) {
                     if (data[appId] && data[appId].success) {
                         const detail = data[appId].data;
+                        if (!detail) continue;
+
                         const title = detail.name;
                         const imgUrl = detail.header_image || `https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${appId}/header.jpg`;
                         const isFree = detail.is_free;
                         let finalPrice = "출시 예정 / 가격 미정";
                         let originalPrice = "";
-                        let discountPercent = 0;
+                        let discountPercent = detail.price_overview?.discount_percent || 0;
                         const steamStoreUrl = `https://store.steampowered.com/app/${appId}`;
 
                         if (isFree) {
                             finalPrice = "무료 플레이 (Free)";
                         } else if (detail.price_overview) {
                             finalPrice = detail.price_overview.final_formatted;
-                            discountPercent = detail.price_overview.discount_percent || 0;
                             if (discountPercent > 0) {
                                 originalPrice = detail.price_overview.initial_formatted;
                             }
                         }
 
-                        const cardData = { appId, title, imgUrl, isFree, finalPrice, originalPrice, discountPercent, steamStoreUrl };
-                        const cardEl = createCardElement(cardData, true);
-                        hotdealsGrid.appendChild(cardEl);
+                        validGames.push({ appId, title, imgUrl, isFree, finalPrice, originalPrice, discountPercent, steamStoreUrl });
                     }
                 }
+
+                // 1단계: 할인율 40% 이상 게임 우선 필터링
+                let highDiscountGames = validGames.filter(g => g.discountPercent >= 40);
+                // 40% 이상 할인 게임이 4개 미만일 경우 전체 할인 게임으로 보완
+                if (highDiscountGames.length < 4) {
+                    highDiscountGames = validGames.filter(g => g.discountPercent > 0);
+                }
+                if (highDiscountGames.length < 4) {
+                    highDiscountGames = validGames;
+                }
+
+                // 2단계: 랜덤 셔플 후 카드뉴스 스타일 4개 선정
+                const shuffled = highDiscountGames.sort(() => 0.5 - Math.random());
+                const selectedHotDeals = shuffled.slice(0, 4);
+
+                hotdealsGrid.innerHTML = '';
+                selectedHotDeals.forEach(cardData => {
+                    const cardEl = createCardElement(cardData, true);
+                    hotdealsGrid.appendChild(cardEl);
+                });
+
             } catch (e) {
                 console.error('핫딜 로드 에러:', e);
                 hotdealsGrid.innerHTML = '';
             }
         }
 
-        // 📌 일반 검색 함수
+        // 📌 일반 검색 함수 (검색 시 핫딜 섹션 숨김 처리)
         async function searchGame() {
             const keyword = searchInput.value.trim();
             if (!keyword) {
                 alert('검색어를 입력해 주세요!');
                 return;
             }
+
+            // 📌 다른 게임 검색 시 오늘의 미친 할인 (Hot Deals) 섹션 자동 숨김 처리
+            hotdealsSection.style.display = 'none';
 
             statusBar.textContent = "🔍 스팀 디렉토리에서 실시간 정보를 조회 중입니다...";
             renderSkeletons(gamesGrid, 6);

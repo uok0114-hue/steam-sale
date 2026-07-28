@@ -71,10 +71,22 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const type = url.searchParams.get('type') || 'price';
 
-  // [0] 오늘의 미친 할인 (Hot Deals) 전용 API
+  // [0] 오늘의 미친 할인 (Hot Deals) 전용 API - 주요 인기 대작 Pool (12개)
   if (type === 'hotdeals') {
-    // 팰월드(1623730), 사펑(1091500), 엘든링(1245620), 레데리2(1174180), GTA V(271590), 발더스 게이트 3(1086940)
-    const hotAppIds = ['1623730', '1091500', '1245620', '1174180', '271590', '1086940'];
+    const hotAppIds = [
+      '1091500', // 사이버펑크 2077
+      '292030',  // 더 위쳐 3
+      '1174180', // 레데리 2
+      '271590',  // GTA V
+      '582010',  // 몬스터 헌터 월드
+      '1245620', // 엘든 링
+      '1623730', // 팰월드
+      '1086940', // 발더스 게이트 3
+      '990080',  // 호그와트 레거시
+      '553850',  // 헬다이버즈 2
+      '1868140', // 데이브 더 다이버
+      '1593500'  // 갓 오브 워
+    ];
     const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${hotAppIds.join(',')}&cc=kr&l=koreana`;
 
     try {
@@ -106,7 +118,6 @@ export async function onRequest(context) {
     const trimmedTerm = term.trim();
     const normalizedKey = trimmedTerm.replace(/\s+/g, '').toLowerCase();
 
-    // 1. 매핑 테이블 검사 (줄임말 / 한글명 -> 스팀 공식 명칭)
     let mappedTerm = null;
     for (const [key, value] of Object.entries(keywordMap)) {
       if (key.replace(/\s+/g, '').toLowerCase() === normalizedKey) {
@@ -123,21 +134,18 @@ export async function onRequest(context) {
     try {
       let data = null;
 
-      // 매핑 단어가 있을 경우 매핑 명칭으로 우선 검색
       if (mappedTerm) {
         const mappedUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(mappedTerm)}&l=koreana&cc=KR`;
         const res = await fetch(mappedUrl, { headers });
         data = await res.json();
       }
 
-      // 매핑으로 결과가 없거나 매핑 단어가 없었던 경우 -> 일반 검색 (1차: 원본 검색어)
       if (!data || !data.items || data.items.length === 0) {
         const searchUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(trimmedTerm)}&l=koreana&cc=KR`;
         const res = await fetch(searchUrl, { headers });
         data = await res.json();
       }
 
-      // [2단계 Fallback] 일반 검색으로도 결과가 없고 띄어쓰기가 포함된 경우 -> 띄어쓰기 제거 재검색
       if ((!data.items || data.items.length === 0) && trimmedTerm.includes(' ')) {
         const noSpaceTerm = trimmedTerm.replace(/\s+/g, '');
         const retryUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(noSpaceTerm)}&l=koreana&cc=KR`;
