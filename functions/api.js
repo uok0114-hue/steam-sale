@@ -71,6 +71,31 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const type = url.searchParams.get('type') || 'price';
 
+  // [0] 오늘의 미친 할인 (Hot Deals) 전용 API
+  if (type === 'hotdeals') {
+    // 팰월드(1623730), 사펑(1091500), 엘든링(1245620), 레데리2(1174180), GTA V(271590), 발더스 게이트 3(1086940)
+    const hotAppIds = ['1623730', '1091500', '1245620', '1174180', '271590', '1086940'];
+    const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${hotAppIds.join(',')}&cc=kr&l=koreana`;
+
+    try {
+      const response = await fetch(steamUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
+      });
+      const data = await response.json();
+      return new Response(JSON.stringify(data), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    } catch (error) {
+      return new Response(JSON.stringify({ error: '핫딜 데이터 조회 실패' }), { status: 500 });
+    }
+  }
+
   // [1] 게임 이름(한글/줄임말/영문)으로 스팀에서 검색하여 게임 ID(appid) 찾는 기능
   if (type === 'search') {
     const term = url.searchParams.get('term');
