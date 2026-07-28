@@ -67,9 +67,9 @@
         fetchBtn.addEventListener('click', function () {
             gamePrice.textContent = "스팀 서버에서 가져오는 중...";
 
-            // 안정적인 우회 서버 사용
-            const targetUrl = encodeURIComponent('https://store.steampowered.com/api/appdetails?appids=1623730&cc=kr');
-            const steamUrl = `https://api.allorigins.win/get?url=${targetUrl}`;
+            // 실제 배포 환경에서 가장 잘 작동하는 corsproxy.io 우회 주소
+            const targetUrl = 'https://store.steampowered.com/api/appdetails?appids=1623730&cc=kr';
+            const steamUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
             fetch(steamUrl)
                 .then(function (response) {
@@ -77,9 +77,8 @@
                     return response.json();
                 })
                 .then(function (data) {
-                    // 전달받은 텍스트 데이터를 JSON 객체로 해석
-                    const realData = JSON.parse(data.contents);
-                    const palworldData = realData['1623730'].data;
+                    // corsproxy.io는 스팀 원본 JSON을 그대로 전달해 줍니다.
+                    const palworldData = data['1623730'].data;
 
                     const title = palworldData.name;
                     const priceString = palworldData.price_overview ? palworldData.price_overview.final_formatted : '무료 게임 또는 가격 정보 없음';
