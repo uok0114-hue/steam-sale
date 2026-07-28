@@ -576,9 +576,9 @@
             <div class="section-header">
                 <div class="section-title">
                     <span>🔥 오늘의 미친 할인</span>
-                    <span class="hot-badge-pill">HOT DEALS 40%+</span>
+                    <span class="hot-badge-pill">40%+ OFF ONLY</span>
                 </div>
-                <span class="section-desc">할인율 40% 이상 추천 파격 할인 대작 (랜덤 4선)</span>
+                <span class="section-desc">할인율 40% 이상인 대작 게임만 엄선 (랜덤 4선)</span>
             </div>
             <div id="hotdeals-grid" class="hotdeals-grid"></div>
         </section>
@@ -723,7 +723,7 @@
             return card;
         }
 
-        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 할인율 40%+ 이상 인기 게임 4개 랜덤 추출 렌더링
+        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 실제 할인율 40%+ 이상인 게임만 엄격히 노출
         async function loadHotDeals() {
             renderSkeletons(hotdealsGrid, 4);
             try {
@@ -757,18 +757,16 @@
                     }
                 }
 
-                // 1단계: 할인율 40% 이상 게임 우선 필터링
-                let highDiscountGames = validGames.filter(g => g.discountPercent >= 40);
-                // 40% 이상 할인 게임이 4개 미만일 경우 전체 할인 게임으로 보완
-                if (highDiscountGames.length < 4) {
-                    highDiscountGames = validGames.filter(g => g.discountPercent > 0);
-                }
-                if (highDiscountGames.length < 4) {
-                    highDiscountGames = validGames;
+                // 📌 할인율이 40% 이상인 게임만 엄격히 필터링 (폴백 없이 40%+ 할인 대상만 선택)
+                const strict40PercentGames = validGames.filter(g => g.discountPercent >= 40);
+
+                if (strict40PercentGames.length === 0) {
+                    hotdealsSection.style.display = 'none';
+                    return;
                 }
 
-                // 2단계: 랜덤 셔플 후 카드뉴스 스타일 4개 선정
-                const shuffled = highDiscountGames.sort(() => 0.5 - Math.random());
+                // 40%+ 할인 대상 중 무작위 셔플 후 최대 4개 선택
+                const shuffled = strict40PercentGames.sort(() => 0.5 - Math.random());
                 const selectedHotDeals = shuffled.slice(0, 4);
 
                 hotdealsGrid.innerHTML = '';
