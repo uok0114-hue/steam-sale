@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>스팀 게임 가격 조회기</title>
     <style>
-        /* 화면을 보기 좋게 만드는 단순한 스타일입니다 */
         body {
             font-family: sans-serif;
             padding: 30px;
@@ -61,7 +60,38 @@
     </div>
 
     <script>
-        // 자바스크립트 코드가 여기에 들어갈 예정입니다!
+        const fetchBtn = document.getElementById('fetch-btn');
+        const gameTitle = document.getElementById('game-title');
+        const gamePrice = document.getElementById('game-price');
+
+        fetchBtn.addEventListener('click', function () {
+            gamePrice.textContent = "스팀 서버에서 가져오는 중...";
+
+            // 안정적인 우회 서버 사용
+            const targetUrl = encodeURIComponent('https://store.steampowered.com/api/appdetails?appids=1623730&cc=kr');
+            const steamUrl = `https://api.allorigins.win/get?url=${targetUrl}`;
+
+            fetch(steamUrl)
+                .then(function (response) {
+                    if (!response.ok) throw new Error('네트워크 응답 이상');
+                    return response.json();
+                })
+                .then(function (data) {
+                    // 전달받은 텍스트 데이터를 JSON 객체로 해석
+                    const realData = JSON.parse(data.contents);
+                    const palworldData = realData['1623730'].data;
+
+                    const title = palworldData.name;
+                    const priceString = palworldData.price_overview ? palworldData.price_overview.final_formatted : '무료 게임 또는 가격 정보 없음';
+
+                    gameTitle.textContent = title;
+                    gamePrice.textContent = priceString;
+                })
+                .catch(function (error) {
+                    console.error('에러 상세 정보:', error);
+                    gamePrice.textContent = "가격을 불러오지 못했습니다 😢";
+                });
+        });
     </script>
 </body>
 
