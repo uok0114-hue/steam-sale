@@ -72,7 +72,7 @@ export async function onRequest(context) {
   const type = url.searchParams.get('type') || 'price';
 
   // [0] 오늘의 미친 할인 (Hot Deals) 전용 API
-  // 실시간 할인율 40%+ 이상을 확보하기 위한 스팀 주요 인기 대작 Pool (15종)
+  // 청크(Chunk) 단위 분산 통신으로 스팀 레이트 리밋(IP Rate Limit)을 방지하고 안정성을 극대화합니다.
   if (type === 'hotdeals') {
     const hotAppIds = [
       '1091500', // 사이버펑크 2077
@@ -84,12 +84,7 @@ export async function onRequest(context) {
       '208650',  // 배트맨 아캄 나이트
       '1174180', // 레데리 2
       '271590',  // GTA V
-      '1245620', // 엘든 링
-      '1623730', // 팰월드
-      '1086940', // 발더스 게이트 3
-      '990080',  // 호그와트 레거시
-      '1868140', // 데이브 더 다이버
-      '1593500'  // 갓 오브 워
+      '1623730'  // 팰월드
     ];
 
     const headers = {
@@ -98,23 +93,30 @@ export async function onRequest(context) {
     };
 
     try {
-      const promises = hotAppIds.map(async (appid) => {
-        const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appid}&cc=kr&l=koreana`;
-        const res = await fetch(steamUrl, { headers });
-        if (res.ok) {
-          const json = await res.json();
-          return { appid, data: json[appid] };
-        }
-        return null;
-      });
-
-      const results = await Promise.all(promises);
+      const chunkSize = 5;
       const combinedData = {};
-      results.forEach(item => {
-        if (item && item.data) {
-          combinedData[item.appid] = item.data;
-        }
-      });
+      
+      for (let i = 0; i < hotAppIds.length; i += chunkSize) {
+        const chunk = hotAppIds.slice(i, i + chunkSize);
+        const chunkPromises = chunk.map(async (appid) => {
+          try {
+            const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appid}&cc=kr&l=koreana`;
+            const res = await fetch(steamUrl, { headers });
+            if (res.ok) {
+              const json = await res.json();
+              return { appid, data: json[appid] };
+            }
+          } catch (e) {}
+          return null;
+        });
+
+        const results = await Promise.all(chunkPromises);
+        results.forEach(item => {
+          if (item && item.data) {
+            combinedData[item.appid] = item.data;
+          }
+        });
+      }
 
       return new Response(JSON.stringify(combinedData), {
         headers: {

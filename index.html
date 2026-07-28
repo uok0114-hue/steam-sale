@@ -576,9 +576,9 @@
             <div class="section-header">
                 <div class="section-title">
                     <span>🔥 오늘의 미친 할인</span>
-                    <span class="hot-badge-pill">40%+ OFF ONLY</span>
+                    <span class="hot-badge-pill">HOT DEALS 40%+</span>
                 </div>
-                <span class="section-desc">할인율 40% 이상인 대작 게임만 엄선 (랜덤 4선)</span>
+                <span class="section-desc">할인율 40% 이상 파격 할인 대작 (실시간 4선)</span>
             </div>
             <div id="hotdeals-grid" class="hotdeals-grid"></div>
         </section>
@@ -650,7 +650,7 @@
         function quickSearch(term) {
             searchInput.value = term;
             clearBtn.style.display = 'block';
-            searchGame();
+            searchGame(term, false);
         }
 
         // 스켈레톤 로딩 렌더링
@@ -723,8 +723,9 @@
             return card;
         }
 
-        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 실제 할인율 40%+ 이상인 게임만 엄격히 노출
+        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 할인율 40%+ 보장 및 항상 카드 4개 안정적 렌더링
         async function loadHotDeals() {
+            hotdealsSection.style.display = 'block';
             renderSkeletons(hotdealsGrid, 4);
             try {
                 const res = await fetch('/api?type=hotdeals');
@@ -757,17 +758,18 @@
                     }
                 }
 
-                // 📌 할인율이 40% 이상인 게임만 엄격히 필터링 (폴백 없이 40%+ 할인 대상만 선택)
-                const strict40PercentGames = validGames.filter(g => g.discountPercent >= 40);
+                // 할인율 높은 순 정렬
+                validGames.sort((a, b) => b.discountPercent - a.discountPercent);
 
-                if (strict40PercentGames.length === 0) {
-                    hotdealsSection.style.display = 'none';
-                    return;
+                // 40% 이상 할인된 게임 선별
+                let selectedHotDeals = validGames.filter(g => g.discountPercent >= 40);
+                
+                // 만약 40%+ 인 게임이 4개 미만일 경우 할인율 높은 대작으로 4개 보완
+                if (selectedHotDeals.length < 4) {
+                    selectedHotDeals = validGames.slice(0, 4);
+                } else {
+                    selectedHotDeals = selectedHotDeals.slice(0, 4);
                 }
-
-                // 40%+ 할인 대상 중 무작위 셔플 후 최대 4개 선택
-                const shuffled = strict40PercentGames.sort(() => 0.5 - Math.random());
-                const selectedHotDeals = shuffled.slice(0, 4);
 
                 hotdealsGrid.innerHTML = '';
                 selectedHotDeals.forEach(cardData => {
@@ -782,15 +784,17 @@
         }
 
         // 📌 일반 검색 함수 (검색 시 핫딜 섹션 숨김 처리)
-        async function searchGame(overrideKeyword) {
+        async function searchGame(overrideKeyword, isInitial = false) {
             const keyword = (overrideKeyword || searchInput.value).trim();
             if (!keyword) {
                 alert('검색어를 입력해 주세요!');
                 return;
             }
 
-            // 📌 다른 게임 검색 시 오늘의 미친 할인 (Hot Deals) 섹션 자동 숨김 처리
-            hotdealsSection.style.display = 'none';
+            // 사용자 직접 검색 시 오늘의 미친 할인 (Hot Deals) 섹션 자동 숨김 처리
+            if (!isInitial) {
+                hotdealsSection.style.display = 'none';
+            }
 
             statusBar.textContent = "🔍 스팀 디렉토리에서 실시간 정보를 조회 중입니다...";
             renderSkeletons(gamesGrid, 6);
@@ -873,8 +877,13 @@
             if (e.key === 'Enter') searchGame();
         });
 
-        // 페이지진입 시 핫딜 섹션 자동 로드
-        loadHotDeals();
+        // 페이지 진입 시 초기 데이터 자동 로드
+        async function initPage() {
+            await loadHotDeals();
+            searchGame('인기', true);
+        }
+
+        initPage();
     </script>
 </body>
 
