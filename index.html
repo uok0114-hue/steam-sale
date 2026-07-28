@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
     <style>
-        :root {
+        :root, [data-theme="dark"] {
             --bg-body: #0f141c;
             --bg-card: #171d27;
             --bg-card-hover: #1e2533;
@@ -23,6 +23,30 @@
             --border-hover: rgba(96, 165, 250, 0.4);
             --radius-card: 18px;
             --radius-btn: 12px;
+            --input-color: #ffffff;
+            --placeholder-color: #6b7280;
+            --chip-bg: rgba(255, 255, 255, 0.04);
+            --shadow-card: 0 8px 25px rgba(0, 0, 0, 0.25);
+            --shadow-hover: 0 16px 35px rgba(0, 0, 0, 0.45);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --accent-blue: #2563eb;
+            --accent-light-blue: #3b82f6;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --text-title: #0f172a;
+            --text-sub: #475569;
+            --border-card: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(37, 99, 235, 0.35);
+            --input-color: #0f172a;
+            --placeholder-color: #94a3b8;
+            --chip-bg: rgba(0, 0, 0, 0.04);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 12px 30px rgba(37, 99, 235, 0.12);
         }
 
         * {
@@ -35,21 +59,51 @@
             font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-body);
             background-image: 
-                radial-gradient(circle at 50% -100px, rgba(37, 99, 235, 0.15), transparent 70%),
+                radial-gradient(circle at 50% -100px, rgba(37, 99, 235, 0.12), transparent 70%),
                 radial-gradient(circle at 100% 500px, rgba(16, 185, 129, 0.05), transparent 50%);
             background-attachment: fixed;
             color: var(--text-title);
             min-height: 100vh;
             padding: 40px 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            position: relative;
         }
 
-        /* 📌 헤더 영역 (brivyy 미디어 플랫폼 감성) */
+        /* 📌 다크/라이트 모드 토글 토글 버튼 */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 30px;
+            color: var(--text-title);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.25s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-light-blue);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 📌 헤더 영역 */
         .header {
             text-align: center;
             margin-bottom: 35px;
@@ -73,7 +127,7 @@
             font-size: 36px;
             font-weight: 800;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #93c5fd 60%, #6ee7b7 100%);
+            background: linear-gradient(135deg, var(--text-title) 0%, var(--accent-light-blue) 60%, var(--accent-green) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
@@ -97,7 +151,7 @@
             border: 1px solid var(--border-card);
             border-radius: 16px;
             padding: 6px 6px 6px 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            box-shadow: var(--shadow-card);
             transition: all 0.25s ease;
         }
 
@@ -118,13 +172,13 @@
             background: transparent;
             border: none;
             outline: none;
-            color: #ffffff;
+            color: var(--input-color);
             font-size: 16px;
             font-weight: 500;
         }
 
         .search-input::placeholder {
-            color: #6b7280;
+            color: var(--placeholder-color);
         }
 
         .clear-btn {
@@ -139,11 +193,11 @@
         }
 
         .clear-btn:hover {
-            color: #ffffff;
+            color: var(--text-title);
         }
 
         .btn-search {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
             color: #ffffff;
             border: none;
             border-radius: 12px;
@@ -165,7 +219,7 @@
             transform: translateY(0);
         }
 
-        /* brivyy 스타일 가로 스크롤 퀵 태그 칩 */
+        /* 퀵 태그 칩 */
         .quick-chips-wrapper {
             display: flex;
             gap: 10px;
@@ -180,7 +234,7 @@
 
         .chip {
             white-space: nowrap;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--chip-bg);
             border: 1px solid var(--border-card);
             border-radius: 20px;
             padding: 7px 16px;
@@ -214,7 +268,7 @@
             gap: 24px;
         }
 
-        /* 📌 brivyy 스타일 카드 (.game-card) */
+        /* 📌 카드 스타일 (.game-card) */
         .game-card {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -223,7 +277,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+            box-shadow: var(--shadow-card);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
         }
@@ -231,11 +285,11 @@
         .game-card:hover {
             transform: translateY(-6px);
             border-color: var(--border-hover);
-            box-shadow: 0 16px 35px rgba(0, 0, 0, 0.45);
+            box-shadow: var(--shadow-hover);
             background: var(--bg-card-hover);
         }
 
-        /* 16:9 비율 썸네일 영역 */
+        /* 16:9 썸네일 영역 */
         .card-thumb-wrapper {
             position: relative;
             width: 100%;
@@ -255,7 +309,7 @@
             transform: scale(1.05);
         }
 
-        /* brivyy 태그 뱃지 오버레이 */
+        /* 태그 뱃지 오버레이 */
         .badge-tag {
             position: absolute;
             top: 12px;
@@ -265,7 +319,7 @@
             padding: 5px 10px;
             border-radius: 8px;
             backdrop-filter: blur(8px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             z-index: 2;
         }
 
@@ -279,7 +333,7 @@
             color: #ffffff;
         }
 
-        /* 카드 내 콘텐츠 패딩 및 타이포 */
+        /* 카드 콘텐츠 */
         .card-body {
             padding: 20px;
             display: flex;
@@ -305,7 +359,7 @@
         .price-wrapper {
             margin-top: auto;
             padding-top: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid var(--border-card);
         }
 
         .original-price {
@@ -331,7 +385,7 @@
             font-weight: 500;
         }
 
-        /* brivyy 스타일 스팀 링크 버튼 */
+        /* 스팀 링크 버튼 */
         .btn-steam {
             display: inline-flex;
             align-items: center;
@@ -356,7 +410,7 @@
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
         }
 
-        /* 📌 brivyy 스켈레톤 로딩 애니메이션 */
+        /* 📌 스켈레톤 로딩 애니메이션 */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -376,7 +430,7 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(255, 255, 255, 0.04) 50%, 
+                rgba(255, 255, 255, 0.06) 50%, 
                 transparent 100%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
@@ -389,7 +443,7 @@
             text-align: center;
             background: var(--bg-card);
             border-radius: 20px;
-            border: 1px dashed rgba(255, 255, 255, 0.12);
+            border: 1px dashed var(--border-card);
         }
 
         .empty-icon {
@@ -412,6 +466,12 @@
 
 <body>
 
+    <!-- 📌 테마 토글 버튼 (다크/라이트) -->
+    <button id="theme-toggle-btn" class="theme-toggle-btn" title="테마 변경">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-text">다크 모드</span>
+    </button>
+
     <div class="container">
         <!-- 📌 헤더 영역 -->
         <header class="header">
@@ -419,7 +479,7 @@
                 <span>✨</span> MEDIA PLATFORM DIRECTORY • STEAM SALES
             </div>
             <h1>실시간 스팀 게임 가격 & 세일 디렉토리</h1>
-            <p>최신 스팀 세일과 게임 원화 가격 정보를 brivyy 미디어 플랫폼 스타일로 스마트하게 탐색하세요.</p>
+            <p>최신 스팀 세일과 게임 원화 가격 정보를 다크/라이트 모드로 스마트하게 탐색하세요.</p>
         </header>
 
         <!-- 📌 검색 바 & 퀵 탐색 태그 -->
@@ -453,6 +513,32 @@
     </div>
 
     <script>
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        // 테마 설정 & 저장 로직
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            if (theme === 'light') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = '라이트 모드';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '다크 모드';
+            }
+        }
+
+        // 저장된 테마 불러오기 (없으면 다크 모드 기본값)
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        setTheme(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('search-btn');
         const clearBtn = document.getElementById('clear-btn');
@@ -478,7 +564,7 @@
             searchGame();
         }
 
-        // brivyy 스켈레톤 로딩 렌더링
+        // 스켈레톤 로딩 렌더링
         function renderSkeletons(count = 6) {
             gamesGrid.innerHTML = '';
             for (let i = 0; i < count; i++) {
@@ -570,7 +656,7 @@
                 statusBar.textContent = `✨ '${keyword}' 검색 결과 (총 ${results.length}개)`;
                 gamesGrid.innerHTML = '';
 
-                // 3단계: brivyy 카드 DOM 생성
+                // 3단계: 카드 DOM 생성
                 results.forEach(res => {
                     const card = document.createElement('div');
                     card.className = 'game-card';
