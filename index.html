@@ -3,27 +3,31 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>스팀 게임 가격 조회기</title>
+    <title>스팀 게임 실시간 가격 검색기</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             padding: 30px;
             text-align: center;
             background-color: #1b2838;
             color: white;
         }
 
-        .card {
-            background: #171a21;
-            padding: 20px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 20px;
-            width: 300px;
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            width: 250px;
+            outline: none;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-size: 16px;
             cursor: pointer;
             background: #66c0f4;
@@ -31,6 +35,7 @@
             border-radius: 5px;
             color: black;
             font-weight: bold;
+            margin-left: 5px;
         }
 
         button:hover {
@@ -38,56 +43,139 @@
             color: white;
         }
 
+        .card {
+            background: #171a21;
+            padding: 25px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+            min-width: 300px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-img {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
         .price {
-            font-size: 24px;
+            font-size: 26px;
             color: #a4d007;
             font-weight: bold;
             margin-top: 10px;
+        }
+
+        .status {
+            color: #8f98a0;
+            font-size: 14px;
+            margin-top: 5px;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>🎮 스팀 게임 가격 조회기</h1>
-    <p>버튼을 누르면 스팀 서버에서 실시간 가격 정보를 가져옵니다!</p>
+    <h1>🎮 스팀 게임 가격 검색기</h1>
+    <p>원하는 게임 이름을 영문이나 한글로 검색해보세요!</p>
 
-    <button id="fetch-btn">팰월드 가격 확인하기</button>
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="예: Cyberpunk, Elden Ring" value="Palworld">
+        <button id="search-btn">검색하기</button>
+    </div>
 
     <div class="card">
-        <h2 id="game-title">게임 제목</h2>
-        <div id="game-price" class="price">버튼을 눌러주세요</div>
+        <img id="game-img" class="game-img" src="" alt="게임 이미지">
+        <h2 id="game-title">게임 검색 결과</h2>
+        <div id="game-price" class="price">검색어를 입력하고 버튼을 누르세요</div>
+        <div id="status-msg" class="status"></div>
     </div>
 
     <script>
-        const fetchBtn = document.getElementById('fetch-btn');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
         const gameTitle = document.getElementById('game-title');
         const gamePrice = document.getElementById('game-price');
+        const gameImg = document.getElementById('game-img');
+        const statusMsg = document.getElementById('status-msg');
 
-        fetchBtn.addEventListener('click', function () {
-            gamePrice.textContent = "스팀 서버에서 가져오는 중...";
+        async function searchGame() {
+            const keyword = searchInput.value.trim();
+            if (!keyword) {
+                alert('검색어를 입력해 주세요!');
+                return;
+            }
 
-            // 내 Cloudflare 서버의 Functions API 호출!
-            const steamUrl = '/api?appid=1623730';
+            // 초기 상태 표시
+            gameTitle.textContent = "검색 중...";
+            gamePrice.textContent = "🔍 스팀 데이터를 찾는 중입니다...";
+            statusMsg.textContent = "";
+            gameImg.style.display = "none";
 
-            fetch(steamUrl)
-                .then(function (response) {
-                    if (!response.ok) throw new Error('네트워크 응답 이상');
-                    return response.json();
-                })
-                .then(function (data) {
-                    const palworldData = data['1623730'].data;
+            try {
+                // 1단계: 입력한 키워드로 게임 검색하여 ID 구하기
+                const searchRes = await fetch(`/api?type=search&term=${encodeURIComponent(keyword)}`);
+                const searchData = await searchRes.json();
 
-                    const title = palworldData.name;
-                    const priceString = palworldData.price_overview ? palworldData.price_overview.final_formatted : '무료 게임 또는 가격 정보 없음';
+                if (!searchData.items || searchData.items.length === 0) {
+                    gameTitle.textContent = "검색 결과 없음";
+                    gamePrice.textContent = "😢 해당 이름의 게임을 찾을 수 없습니다.";
+                    return;
+                }
 
-                    gameTitle.textContent = title;
-                    gamePrice.textContent = priceString;
-                })
-                .catch(function (error) {
-                    console.error('에러 상세 정보:', error);
-                    gamePrice.textContent = "가격을 불러오지 못했습니다 😢";
-                });
+                // 검색된 첫 번째 게임 정보 사용
+                const firstGame = searchData.items[0];
+                const appId = firstGame.id;
+
+                // 2단계: 구해온 게임 ID로 정확한 상세 가격 정보 조회하기
+                const priceRes = await fetch(`/api?appid=${appId}`);
+                const priceData = await priceRes.json();
+
+                const detail = priceData[appId]?.data;
+
+                if (!detail) {
+                    gameTitle.textContent = firstGame.name;
+                    gamePrice.textContent = "가격 정보를 가져올 수 없는 게임입니다.";
+                    return;
+                }
+
+                // 3단계: 화면에 데이터 출력하기!
+                gameTitle.textContent = detail.name;
+
+                // 게임 썸네일 이미지 표시
+                if (detail.header_image) {
+                    gameImg.src = detail.header_image;
+                    gameImg.style.display = "block";
+                }
+
+                // 가격 정보 설정
+                if (detail.is_free) {
+                    gamePrice.textContent = "무료 플레이 (Free to Play)";
+                } else if (detail.price_overview) {
+                    gamePrice.textContent = detail.price_overview.final_formatted;
+
+                    // 할인 중이라면 할인율 표시
+                    if (detail.price_overview.discount_percent > 0) {
+                        statusMsg.textContent = `🔥 ${detail.price_overview.discount_percent}% 할인 진행 중! (원가: ${detail.price_overview.initial_formatted})`;
+                    }
+                } else {
+                    gamePrice.textContent = "가격 정보 없음 / 출시 예정";
+                }
+
+            } catch (error) {
+                console.error('오류 발생:', error);
+                gameTitle.textContent = "오류 발생";
+                gamePrice.textContent = "데이터를 불러오는 중 에러가 발생했습니다.";
+            }
+        }
+
+        // 버튼 클릭 시 검색
+        searchBtn.addEventListener('click', searchGame);
+
+        // 엔터키 쳐도 검색되도록 설정
+        searchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') searchGame();
         });
     </script>
 </body>
