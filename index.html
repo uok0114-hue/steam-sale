@@ -629,7 +629,7 @@
             const val = searchInput.value.trim();
             clearBtn.style.display = val ? 'block' : 'none';
 
-            // 검색어가 완전히 지워지면 핫딜 섹션 복원 및 검색 결과 초기화
+            // 검색어가 지워지면 핫딜 섹션 복원 및 검색 결과 초기화
             if (!val) {
                 hotdealsSection.style.display = 'block';
                 gamesGrid.innerHTML = '';
@@ -784,8 +784,8 @@
         }
 
         // 📌 일반 검색 함수 (검색 시 핫딜 섹션 숨김 처리)
-        async function searchGame() {
-            const keyword = searchInput.value.trim();
+        async function searchGame(overrideKeyword) {
+            const keyword = (overrideKeyword || searchInput.value).trim();
             if (!keyword) {
                 alert('검색어를 입력해 주세요!');
                 return;
@@ -870,7 +870,7 @@
         }
 
         // 이벤트 리스너 등록
-        searchBtn.addEventListener('click', searchGame);
+        searchBtn.addEventListener('click', () => searchGame());
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') searchGame();
         });

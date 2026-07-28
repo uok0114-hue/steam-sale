@@ -71,33 +71,49 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   const type = url.searchParams.get('type') || 'price';
 
-  // [0] 오늘의 미친 할인 (Hot Deals) 전용 API - 주요 인기 대작 Pool (12개)
+  // [0] 오늘의 미친 할인 (Hot Deals) 전용 API
+  // 스팀 API는 다중 appid 콤마 개별 호출 시 HTTP 오류가 발생하므로, 각 AppID를 개별 병렬(Promise.all) 호출합니다.
   if (type === 'hotdeals') {
     const hotAppIds = [
+      '1623730', // 팰월드
       '1091500', // 사이버펑크 2077
-      '292030',  // 더 위쳐 3
+      '1245620', // 엘든 링
       '1174180', // 레데리 2
       '271590',  // GTA V
       '582010',  // 몬스터 헌터 월드
-      '1245620', // 엘든 링
-      '1623730', // 팰월드
       '1086940', // 발더스 게이트 3
       '990080',  // 호그와트 레거시
       '553850',  // 헬다이버즈 2
       '1868140', // 데이브 더 다이버
+      '292030',  // 더 위쳐 3
       '1593500'  // 갓 오브 워
     ];
-    const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${hotAppIds.join(',')}&cc=kr&l=koreana`;
+
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
+    };
 
     try {
-      const response = await fetch(steamUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
+      const promises = hotAppIds.map(async (appid) => {
+        const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appid}&cc=kr&l=koreana`;
+        const res = await fetch(steamUrl, { headers });
+        if (res.ok) {
+          const json = await res.json();
+          return { appid, data: json[appid] };
+        }
+        return null;
+      });
+
+      const results = await Promise.all(promises);
+      const combinedData = {};
+      results.forEach(item => {
+        if (item && item.data) {
+          combinedData[item.appid] = item.data;
         }
       });
-      const data = await response.json();
-      return new Response(JSON.stringify(data), {
+
+      return new Response(JSON.stringify(combinedData), {
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
