@@ -1,440 +1,68 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="게임 이름 또는 App ID로 스팀 게임 실시간 원가, 할인가, 이미지 및 가격 정보를 검색하는 스팀 가격 조회기">
-  <title>🎮 스팀 게임 가격 조회기 | K-SteamTracker</title>
+    <meta charset="UTF-8">
+    <title>스팀 게임 가격 조회기</title>
+    <style>
+        /* 화면을 보기 좋게 만드는 단순한 스타일입니다 */
+        body {
+            font-family: sans-serif;
+            padding: 30px;
+            text-align: center;
+            background-color: #1b2838;
+            color: white;
+        }
 
-  <!-- Google Fonts: Outfit & Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+        .card {
+            background: #171a21;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 20px;
+            width: 300px;
+        }
 
-  <style>
-    :root {
-      --bg-dark: #0b0e14;
-      --card-bg: #121824;
-      --card-border: #1e293b;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
-      --steam-blue: #38bdf8;
-      --steam-discount: #a4d007;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-    }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #66c0f4;
+            border: none;
+            border-radius: 5px;
+            color: black;
+            font-weight: bold;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        button:hover {
+            background: #417a9b;
+            color: white;
+        }
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #1a2333 0%, var(--bg-dark) 85%);
-      min-height: 100vh;
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 650px;
-      margin: 0 auto;
-    }
-
-    .header-section {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-
-    .header-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 13px;
-      color: var(--steam-blue);
-      font-weight: 500;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      font-family: 'Outfit', sans-serif;
-      font-size: 34px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    /* 📌 캡처 1.png 스타일 둥근 캡슐 검색 박스 */
-    .search-box {
-      background: var(--card-bg);
-      border: 1.5px solid var(--card-border);
-      border-radius: 24px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
-    }
-
-    .search-box:focus-within {
-      border-color: rgba(59, 130, 246, 0.6);
-    }
-
-    input[type="text"] {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      padding: 10px 14px;
-      font-size: 17px;
-      font-weight: 500;
-      color: #fff;
-      font-family: inherit;
-    }
-
-    input[type="text"]::placeholder {
-      color: #64748b;
-    }
-
-    button.btn-search {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
-      color: #fff;
-      border: none;
-      outline: none;
-      padding: 12px 30px;
-      font-size: 16px;
-      font-weight: 700;
-      border-radius: 16px;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-      white-space: nowrap;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    button.btn-search:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
-
-    /* 📌 캡처 1.png 연관 검색 추천 카드 목록 */
-    .suggestions-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    .suggestion-card {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--card-bg);
-      border: 1.5px solid var(--card-border);
-      border-radius: 20px;
-      padding: 12px 18px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .suggestion-card:hover {
-      border-color: var(--accent-blue);
-      background: #1e293b;
-    }
-
-    .suggestion-card img {
-      width: 64px;
-      height: 30px;
-      object-fit: cover;
-      border-radius: 6px;
-      background: #1e293b;
-    }
-
-    .suggestion-title {
-      flex: 1;
-      font-size: 16px;
-      font-weight: 600;
-      color: #f3f4f6;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .suggestion-price {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--steam-blue);
-      white-space: nowrap;
-    }
-
-    /* Quick Chips */
-    .quick-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-
-    .chip {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .chip:hover {
-      background: rgba(59, 130, 246, 0.15);
-      border-color: rgba(59, 130, 246, 0.4);
-      color: #fff;
-    }
-
-    /* Result Card */
-    .card {
-      background: var(--card-bg);
-      border: 1.5px solid var(--card-border);
-      border-radius: 24px;
-      padding: 24px;
-      margin-top: 16px;
-      display: none;
-      text-align: left;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .card img.header-img {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-
-    .game-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 12px;
-    }
-
-    .price-final {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--steam-blue);
-    }
-
-    .discount-badge {
-      background: var(--steam-discount);
-      color: #171a21;
-      font-weight: 800;
-      font-size: 14px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      margin-left: 8px;
-    }
-
-    .steam-link-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      margin-top: 20px;
-      padding: 14px;
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: 16px;
-      color: var(--steam-blue);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .error-msg {
-      display: none;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #fca5a5;
-      padding: 14px 18px;
-      border-radius: 16px;
-      font-size: 14px;
-      margin-top: 16px;
-      text-align: center;
-    }
-  </style>
+        .price {
+            font-size: 24px;
+            color: #a4d007;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container">
-  <div class="header-section">
-    <div class="header-badge">⚡ 스팀 실시간 원화 가격 검색기</div>
-    <h1>🎮 스팀 가격 조회</h1>
-    <p class="subtitle">유사한 글자를 입력하면 아래에 관련 연관 게임이 실시간으로 추천됩니다!</p>
-  </div>
+    <h1>🎮 스팀 게임 가격 조회기</h1>
+    <p>버튼을 누르면 스팀 서버에서 실시간 가격 정보를 가져옵니다!</p>
 
-  <!-- 📌 캡처 1.png 둥근 캡슐 검색창 -->
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="게임 이름 입력 (예: 아크, 사이버, 몬헌)" autocomplete="off">
-    <button class="btn-search" onclick="fetchGamePrice()">검색</button>
-  </div>
+    <button id="fetch-btn">팰월드 가격 확인하기</button>
 
-  <!-- 📌 캡처 1.png 연관 추천 카드 목록 -->
-  <div id="suggestionsList" class="suggestions-list"></div>
-
-  <!-- Quick Chips -->
-  <div class="quick-chips">
-    <span class="chip" onclick="quickSearch('아크')">#아크</span>
-    <span class="chip" onclick="quickSearch('사이버')">#사이버</span>
-    <span class="chip" onclick="quickSearch('팰월드')">#팰월드</span>
-    <span class="chip" onclick="quickSearch('몬헌')">#몬헌</span>
-    <span class="chip" onclick="quickSearch('레데리')">#레데리</span>
-    <span class="chip" onclick="quickSearch('발더스')">#발더스</span>
-  </div>
-
-  <!-- 에러 메시지 -->
-  <div id="errorMsg" class="error-msg"></div>
-
-  <!-- 결과 상세 카드 -->
-  <div id="resultCard" class="card">
-    <img id="gameImg" class="header-img" src="" alt="게임 이미지">
-    <h2 id="gameTitle" class="game-title"></h2>
-    <div>
-      <span id="gamePrice" class="price-final"></span>
-      <span id="discountBadge" class="discount-badge" style="display: none;"></span>
+    <div class="card">
+        <h2 id="game-title">게임 제목</h2>
+        <div id="game-price" class="price">버튼을 눌러주세요</div>
     </div>
-    <a id="steamLink" href="#" target="_blank" rel="noopener noreferrer" class="steam-link-btn">
-      🛒 스팀 공식 상점 페이지 바로가기 ➔
-    </a>
-  </div>
-</div>
 
-<script>
-  let gamesMap = {
-    "배틀그라운드": 578080, "배그": 578080, "pubg": 578080,
-    "사이버펑크": 1091500, "사펑": 1091500, "cyberpunk": 1091500,
-    "팰월드": 1623730, "팔월드": 1623730, "palworld": 1623730,
-    "몬스터헌터": 582010, "몬헌": 582010, "monster hunter": 582010,
-    "gta5": 271590, "지티에이": 271590, "데이브 더 다이버": 1868140,
-    "엘든 링": 1245620, "엘든링": 1245620, "레드 데드 리뎀션 2": 1174180, "레데리": 1174180,
-    "아크 서바이벌 이볼브드": 346110, "아크 서바이벌": 346110, "아크": 346110,
-    "아크 서바이벌 어센디드": 2370130, "발더스 게이트 3": 1086940, "발더스": 1086940
-  };
-
-  document.getElementById('searchInput').addEventListener('input', function(e) {
-    const val = e.target.value.trim();
-    const listEl = document.getElementById('suggestionsList');
-
-    if (!val) {
-      listEl.innerHTML = '';
-      return;
-    }
-
-    const norm = val.replace(/\s+/g, '').toLowerCase();
-    const matches = [];
-    const seen = new Set();
-
-    for (const k in gamesMap) {
-      const normK = k.replace(/\s+/g, '').toLowerCase();
-      if (normK.includes(norm) || norm.includes(normK)) {
-        const id = gamesMap[k];
-        if (!seen.has(id)) {
-          seen.add(id);
-          matches.push({ id: id, name: k });
-        }
-      }
-    }
-
-    listEl.innerHTML = '';
-    matches.slice(0, 7).forEach(m => {
-      const card = document.createElement('div');
-      card.className = 'suggestion-card';
-      card.innerHTML = `
-        <img src="https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${m.id}/header.jpg" alt="${m.name}" onerror="this.style.display='none'">
-        <span class="suggestion-title">${m.name}</span>
-        <span class="suggestion-price">선택 시 가격 조회 ➔</span>
-      `;
-      card.onclick = () => {
-        document.getElementById('searchInput').value = m.name;
-        renderGameCard(m.id, m.name);
-      };
-      listEl.appendChild(card);
-    });
-  });
-
-  document.getElementById('searchInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') fetchGamePrice();
-  });
-
-  function quickSearch(term) {
-    document.getElementById('searchInput').value = term;
-    fetchGamePrice(term);
-  }
-
-  async function fetchGamePrice(term) {
-    const q = term || document.getElementById('searchInput').value.trim();
-    if (!q) return;
-
-    let appId = 578080;
-    const norm = q.replace(/\s+/g, '').toLowerCase();
-
-    for (const k in gamesMap) {
-      if (k.replace(/\s+/g, '').toLowerCase().includes(norm) || norm.includes(k.replace(/\s+/g, '').toLowerCase())) {
-        appId = gamesMap[k];
-        break;
-      }
-    }
-
-    renderGameCard(appId, q);
-  }
-
-  async function renderGameCard(appId, title) {
-    const resultCard = document.getElementById('resultCard');
-    const steamUrl = `https://store.steampowered.com/api/appdetails?appids=${appId}&cc=kr&l=korean`;
-    let priceStr = '₩ 32,000 (스팀 원화)';
-
-    try {
-      const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(steamUrl)}`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json && json[appId] && json[appId].success) {
-          const d = json[appId].data;
-          if (d.is_free) {
-            priceStr = '무료 (Free to Play)';
-          } else if (d.price_overview) {
-            priceStr = d.price_overview.final_formatted;
-          }
-        }
-      }
-    } catch(e) {}
-
-    document.getElementById('gameImg').src = `https://shared.fastly.steamstatic.com/store_images_cdn/steam/apps/${appId}/header.jpg`;
-    document.getElementById('gameTitle').innerText = title;
-    document.getElementById('gamePrice').innerText = `가격: ${priceStr}`;
-    document.getElementById('steamLink').href = `https://store.steampowered.com/app/${appId}`;
-    resultCard.style.display = 'block';
-  }
-</script>
-
+    <script>
+        // 자바스크립트 코드가 여기에 들어갈 예정입니다!
+    </script>
 </body>
+
 </html>
