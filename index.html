@@ -259,6 +259,48 @@
             transform: translateY(-2px);
         }
 
+        /* 📌 🏷️ 할인율 / 핫딜 필터링 칩 스타일 */
+        .filter-chips-wrapper {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 12px 4px 4px 4px;
+            margin-top: 12px;
+            border-top: 1px dashed var(--border-card);
+            scrollbar-width: none;
+        }
+
+        .filter-chips-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            white-space: nowrap;
+            background: var(--chip-bg);
+            border: 1px solid var(--border-card);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .filter-chip:hover {
+            background: rgba(59, 130, 246, 0.12);
+            border-color: rgba(59, 130, 246, 0.4);
+            color: var(--accent-light-blue);
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
         /* 📌 🔥 오늘의 미친 할인 (Hot Deals) 섹션 */
         .hotdeals-section {
             margin-bottom: 45px;
@@ -577,6 +619,15 @@
                 <span class="chip" onclick="quickSearch('스카이림')">#스카이림</span>
                 <span class="chip" onclick="quickSearch('엘든링')">#엘든링</span>
             </div>
+
+            <!-- 🏷️ 할인율 / 핫딜 필터링 칩 -->
+            <div class="filter-chips-wrapper" id="filter-chips-wrapper">
+                <button class="filter-chip active" data-filter="all" onclick="applyFilter('all', this)">전체</button>
+                <button class="filter-chip" data-filter="50off" onclick="applyFilter('50off', this)">🔥 50% 이상 할인</button>
+                <button class="filter-chip" data-filter="under30k" onclick="applyFilter('under30k', this)">💰 3만원 이하</button>
+                <button class="filter-chip" data-filter="free" onclick="applyFilter('free', this)">🎮 무료 게임</button>
+                <button class="filter-chip" data-filter="favorite" onclick="applyFilter('favorite', this)">⭐ 찜한 게임</button>
+            </div>
         </section>
 
         <!-- 📌 🔥 오늘의 미친 할인 (Hot Deals) 카드뉴스 섹션 -->
@@ -632,6 +683,11 @@
         const hotdealsSection = document.getElementById('hotdeals-section');
         const hotdealsGrid = document.getElementById('hotdeals-grid');
 
+        // 전역 데이터 및 필터 상태 관리
+        let allLoadedGames = [];
+        let hotdealsGames = [];
+        let activeFilter = 'all';
+
         // Clear(X) 버튼 토글 및 검색창 비워지면 핫딜 복원
         searchInput.addEventListener('input', () => {
             const val = searchInput.value.trim();
@@ -642,6 +698,7 @@
                 hotdealsSection.style.display = 'block';
                 gamesGrid.innerHTML = '';
                 statusBar.textContent = "원하는 게임을 검색하면 결과가 표시됩니다.";
+                renderFilteredGames();
             }
         });
 
@@ -652,6 +709,7 @@
             gamesGrid.innerHTML = '';
             statusBar.textContent = "원하는 게임을 검색하면 결과가 표시됩니다.";
             searchInput.focus();
+            renderFilteredGames();
         });
 
         // 퀵 태그 클릭 검색
@@ -751,18 +809,21 @@
                         let finalPrice = "출시 예정 / 가격 미정";
                         let originalPrice = "";
                         let discountPercent = detail.price_overview?.discount_percent || 0;
+                        let finalPriceNum = 0;
                         const steamStoreUrl = `https://store.steampowered.com/app/${appId}`;
 
                         if (isFree) {
                             finalPrice = "무료 플레이 (Free)";
+                            finalPriceNum = 0;
                         } else if (detail.price_overview) {
                             finalPrice = detail.price_overview.final_formatted;
+                            finalPriceNum = Math.floor(detail.price_overview.final / 100);
                             if (discountPercent > 0) {
                                 originalPrice = detail.price_overview.initial_formatted;
                             }
                         }
 
-                        validGames.push({ appId, title, imgUrl, isFree, finalPrice, originalPrice, discountPercent, steamStoreUrl });
+                        validGames.push({ appId, title, imgUrl, isFree, finalPrice, originalPrice, discountPercent, steamStoreUrl, finalPriceNum });
                     }
                 }
 
@@ -781,11 +842,8 @@
                 const shuffled = highDiscountGames.sort(() => Math.random() - 0.5);
                 const selectedHotDeals = shuffled.slice(0, 4);
 
-                hotdealsGrid.innerHTML = '';
-                selectedHotDeals.forEach(cardData => {
-                    const cardEl = createCardElement(cardData, true);
-                    hotdealsGrid.appendChild(cardEl);
-                });
+                hotdealsGames = selectedHotDeals;
+                renderFilteredGames();
 
             } catch (e) {
                 console.error('핫딜 로드 에러:', e);
@@ -817,6 +875,7 @@
                 if (!searchData.items || searchData.items.length === 0) {
                     statusBar.textContent = "";
                     renderEmptyState(keyword);
+                    allLoadedGames = [];
                     return;
                 }
 
@@ -833,6 +892,7 @@
                     let finalPrice = "출시 예정 / 가격 미정";
                     let originalPrice = "";
                     let discountPercent = 0;
+                    let finalPriceNum = 0;
                     const steamStoreUrl = `https://store.steampowered.com/app/${appId}`;
 
                     try {
@@ -848,9 +908,11 @@
                                 isFree = detail.is_free;
                                 if (isFree) {
                                     finalPrice = "무료 플레이 (Free)";
+                                    finalPriceNum = 0;
                                 } else if (detail.price_overview) {
                                     finalPrice = detail.price_overview.final_formatted;
                                     discountPercent = detail.price_overview.discount_percent || 0;
+                                    finalPriceNum = Math.floor(detail.price_overview.final / 100);
                                     if (discountPercent > 0) {
                                         originalPrice = detail.price_overview.initial_formatted;
                                     }
@@ -861,24 +923,72 @@
                         console.warn(`AppId ${appId} price fetch error:`, e);
                     }
 
-                    return { appId, title, imgUrl, isFree, finalPrice, originalPrice, discountPercent, steamStoreUrl };
+                    return { appId, title, imgUrl, isFree, finalPrice, originalPrice, discountPercent, steamStoreUrl, finalPriceNum };
                 });
 
                 const results = await Promise.all(cardPromises);
+                allLoadedGames = results;
                 statusBar.textContent = `✨ '${keyword}' 검색 결과 (총 ${results.length}개)`;
-                gamesGrid.innerHTML = '';
-
-                // 3단계: 카드 DOM 생성
-                results.forEach(res => {
-                    const cardEl = createCardElement(res, false);
-                    gamesGrid.appendChild(cardEl);
-                });
+                renderFilteredGames();
 
             } catch (error) {
                 console.error('검색 중 오류 발생:', error);
                 statusBar.textContent = "데이터를 불러오는 중 오류가 발생했습니다.";
                 gamesGrid.innerHTML = '';
+                allLoadedGames = [];
             }
+        }
+
+        // 📌 필터 칩 적용 함수
+        function applyFilter(filterType, element) {
+            activeFilter = filterType;
+
+            const filterChips = document.querySelectorAll('.filter-chip');
+            filterChips.forEach(chip => chip.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            }
+
+            renderFilteredGames();
+        }
+
+        // 📌 현재 로드된 게임 데이터 필터링 렌더링
+        function renderFilteredGames() {
+            const isHotdealsMode = (hotdealsSection.style.display !== 'none');
+            const sourceGames = isHotdealsMode ? hotdealsGames : allLoadedGames;
+            const targetGrid = isHotdealsMode ? hotdealsGrid : gamesGrid;
+
+            if (!sourceGames || sourceGames.length === 0) return;
+
+            const filtered = sourceGames.filter(game => {
+                if (activeFilter === 'all') return true;
+                if (activeFilter === '50off') return game.discountPercent >= 50;
+                if (activeFilter === 'under30k') return game.isFree || (game.finalPriceNum > 0 && game.finalPriceNum <= 30000);
+                if (activeFilter === 'free') return game.isFree || game.finalPriceNum === 0;
+                if (activeFilter === 'favorite') {
+                    const favorites = JSON.parse(localStorage.getItem('steam_favorites') || '[]');
+                    return favorites.includes(String(game.appId));
+                }
+                return true;
+            });
+
+            targetGrid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                targetGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">😢</div>
+                        <h3>해당 조건에 맞는 게임이 없습니다.</h3>
+                        <p>다른 필터 칩을 선택해보세요.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(cardData => {
+                const cardEl = createCardElement(cardData, isHotdealsMode);
+                targetGrid.appendChild(cardEl);
+            });
         }
 
         // 📌 홈 화면 초기화/리셋 (Home Reset)
@@ -888,6 +998,8 @@
             hotdealsSection.style.display = 'block';
             gamesGrid.innerHTML = '';
             statusBar.textContent = "원하는 게임을 검색하면 결과가 표시됩니다.";
+            const allChip = document.querySelector('.filter-chip[data-filter="all"]');
+            applyFilter('all', allChip);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
