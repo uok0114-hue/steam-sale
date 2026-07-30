@@ -8,6 +8,12 @@
     <!-- Pretendard / Sans-serif Fonts -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Toastify.js CDN -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
     <style>
         :root, [data-theme="dark"] {
             --bg-body: #0f141c;
@@ -155,7 +161,9 @@
         .search-bar-wrapper {
             display: flex;
             align-items: center;
-            background: var(--bg-card);
+            background: rgba(23, 29, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-card);
             border-radius: 16px;
             padding: 6px 6px 6px 20px;
@@ -284,7 +292,15 @@
             font-weight: 700;
             color: var(--text-sub);
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.25s ease;
+        }
+
+        .filter-chip i {
+            width: 15px;
+            height: 15px;
         }
 
         .filter-chip:hover {
@@ -602,7 +618,7 @@
         <!-- 📌 검색 바 & 퀵 탐색 태그 -->
         <section class="search-section">
             <div class="search-bar-wrapper">
-                <span class="search-icon">🔍</span>
+                <span class="search-icon"><i data-lucide="search" style="width: 18px; height: 18px; display: block;"></i></span>
                 <input type="text" id="search-input" class="search-input" placeholder="게임 이름을 입력하세요 (예: 몬헌, 사펑, GTA, 팰월드)" value="" autocomplete="off">
                 <button id="clear-btn" class="clear-btn" title="검색어 지우기">✕</button>
                 <button id="search-btn" class="btn-search">검색</button>
@@ -622,11 +638,11 @@
 
             <!-- 🏷️ 할인율 / 핫딜 필터링 칩 -->
             <div class="filter-chips-wrapper" id="filter-chips-wrapper">
-                <button class="filter-chip active" data-filter="all" onclick="applyFilter('all', this)">전체</button>
-                <button class="filter-chip" data-filter="50off" onclick="applyFilter('50off', this)">🔥 50% 이상 할인</button>
-                <button class="filter-chip" data-filter="under30k" onclick="applyFilter('under30k', this)">💰 3만원 이하</button>
-                <button class="filter-chip" data-filter="free" onclick="applyFilter('free', this)">🎮 무료 게임</button>
-                <button class="filter-chip" data-filter="favorite" onclick="applyFilter('favorite', this)">⭐ 찜한 게임</button>
+                <button class="filter-chip active" data-filter="all" onclick="applyFilter('all', this)"><i data-lucide="layout-grid"></i> 전체</button>
+                <button class="filter-chip" data-filter="50off" onclick="applyFilter('50off', this)"><i data-lucide="flame" style="color: #ef4444;"></i> 50% 이상 할인</button>
+                <button class="filter-chip" data-filter="under30k" onclick="applyFilter('under30k', this)"><i data-lucide="tag" style="color: #10b981;"></i> 3만원 이하</button>
+                <button class="filter-chip" data-filter="free" onclick="applyFilter('free', this)"><i data-lucide="gamepad-2" style="color: #60a5fa;"></i> 무료 게임</button>
+                <button class="filter-chip" data-filter="favorite" onclick="applyFilter('favorite', this)"><i data-lucide="star" style="color: #f59e0b;"></i> 찜한 게임</button>
             </div>
         </section>
 
@@ -634,7 +650,7 @@
         <section id="hotdeals-section" class="hotdeals-section">
             <div class="section-header">
                 <div class="section-title">
-                    <span>🔥 오늘의 미친 할인</span>
+                    <span style="display: flex; align-items: center; gap: 6px;"><i data-lucide="flame" style="color: #ef4444; width: 24px; height: 24px;"></i> 오늘의 미친 할인</span>
                     <span class="hot-badge-pill">HOT DEALS 40%+</span>
                 </div>
                 <span class="section-desc">할인율 40% 이상 파격 할인 대작 (랜덤 셔플 4선)</span>
@@ -851,11 +867,38 @@
             }
         }
 
+        // 📌 Toastify 팝업 토스트 알림 헬퍼 함수
+        function showToast(message, type = 'info') {
+            let background = "linear-gradient(to right, #3b82f6, #2563eb)";
+            if (type === 'warning') background = "linear-gradient(to right, #f59e0b, #d97706)";
+            if (type === 'error') background = "linear-gradient(to right, #ef4444, #dc2626)";
+            if (type === 'success') background = "linear-gradient(to right, #10b981, #059669)";
+
+            if (typeof Toastify === 'function') {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: background,
+                        borderRadius: "12px",
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+                        fontSize: "14px",
+                        fontWeight: "600"
+                    }
+                }).showToast();
+            } else {
+                alert(message);
+            }
+        }
+
         // 📌 일반 검색 함수 (검색 시 핫딜 섹션 숨김 처리)
         async function searchGame(overrideKeyword, isInitial = false) {
             const keyword = (overrideKeyword || searchInput.value).trim();
             if (!keyword) {
-                alert('검색어를 입력해 주세요!');
+                showToast('검색어를 입력해 주세요!', 'warning');
                 return;
             }
 
@@ -876,6 +919,7 @@
                     statusBar.textContent = "";
                     renderEmptyState(keyword);
                     allLoadedGames = [];
+                    showToast(`'${keyword}' 검색 결과가 없습니다.`, 'info');
                     return;
                 }
 
@@ -930,12 +974,14 @@
                 allLoadedGames = results;
                 statusBar.textContent = `✨ '${keyword}' 검색 결과 (총 ${results.length}개)`;
                 renderFilteredGames();
+                showToast(`'${keyword}' 검색이 완료되었습니다. (${results.length}건)`, 'success');
 
             } catch (error) {
                 console.error('검색 중 오류 발생:', error);
                 statusBar.textContent = "데이터를 불러오는 중 오류가 발생했습니다.";
                 gamesGrid.innerHTML = '';
                 allLoadedGames = [];
+                showToast('검색 중 오류가 발생했습니다.', 'error');
             }
         }
 
@@ -989,6 +1035,10 @@
                 const cardEl = createCardElement(cardData, isHotdealsMode);
                 targetGrid.appendChild(cardEl);
             });
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         }
 
         // 📌 홈 화면 초기화/리셋 (Home Reset)
@@ -1001,6 +1051,7 @@
             const allChip = document.querySelector('.filter-chip[data-filter="all"]');
             applyFilter('all', allChip);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast('홈 화면으로 이동했습니다.', 'info');
         }
 
         // 이벤트 리스너 등록
@@ -1012,6 +1063,9 @@
         // 페이지 진입 시 초기 데이터 자동 로드
         async function initPage() {
             await loadHotDeals();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
         }
 
         initPage();
