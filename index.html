@@ -545,30 +545,81 @@
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
         }
 
-        /* 📌 스켈레톤 로딩 애니메이션 */
+        /* 📌 뼈대 스켈레톤 로딩 (Skeleton Loading UI) */
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .skeleton-card {
-            background: var(--bg-card);
+            background: rgba(23, 29, 39, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-radius: var(--radius-card);
-            height: 320px;
             border: 1px solid var(--border-card);
             overflow: hidden;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 380px;
+        }
+
+        .skeleton-img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .skeleton-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .skeleton-title {
+            height: 20px;
+            width: 80%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+        }
+
+        .skeleton-title-sub {
+            height: 16px;
+            width: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .skeleton-price {
+            height: 26px;
+            width: 45%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            margin-top: auto;
+        }
+
+        .skeleton-btn {
+            height: 38px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-btn);
+            margin-top: 10px;
         }
 
         .skeleton-shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent 0%, 
-                rgba(255, 255, 255, 0.06) 50%, 
+                rgba(255, 255, 255, 0.09) 50%, 
                 transparent 100%);
-            background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
+            pointer-events: none;
         }
 
         /* 📌 Empty State UI */
@@ -737,16 +788,28 @@
             searchGame(term, false);
         }
 
-        // 스켈레톤 로딩 렌더링
-        function renderSkeletons(container, count = 4) {
+        // 📌 스켈레톤 로딩 렌더링 함수
+        function showSkeletons(container, count = 4) {
+            if (!container) return;
             container.innerHTML = '';
             for (let i = 0; i < count; i++) {
                 const skel = document.createElement('div');
                 skel.className = 'skeleton-card';
-                skel.innerHTML = '<div class="skeleton-shimmer"></div>';
+                skel.innerHTML = `
+                    <div class="skeleton-img"></div>
+                    <div class="skeleton-body">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-title-sub"></div>
+                        <div class="skeleton-price"></div>
+                        <div class="skeleton-btn"></div>
+                    </div>
+                    <div class="skeleton-shimmer"></div>
+                `;
                 container.appendChild(skel);
             }
         }
+
+        const renderSkeletons = showSkeletons;
 
         // Empty State 렌더링
         function renderEmptyState(keyword) {
@@ -807,10 +870,10 @@
             return card;
         }
 
-        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 할인율 40%+ 이상 무작위 셔플(Random) 4개선선 노출
+        // 📌 🔥 오늘의 미친 할인 (Hot Deals): 할인율 40%+ 이상 무작위 셔플(Random) 4개선 노출
         async function loadHotDeals() {
             hotdealsSection.style.display = 'block';
-            renderSkeletons(hotdealsGrid, 4);
+            showSkeletons(hotdealsGrid, 4);
             try {
                 const res = await fetch('/api?type=hotdeals');
                 const data = await res.json();
@@ -910,7 +973,7 @@
             }
 
             statusBar.textContent = "🔍 스팀 디렉토리에서 실시간 정보를 조회 중입니다...";
-            renderSkeletons(gamesGrid, 6);
+            showSkeletons(gamesGrid, 6);
 
             try {
                 // 1단계: 백엔드 API에서 검색 키워드로 목록 조회
