@@ -131,6 +131,14 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .header h1:hover {
+            opacity: 0.85;
+            transform: scale(1.01);
         }
 
         .header p {
@@ -542,10 +550,10 @@
     <div class="container">
         <!-- 📌 헤더 영역 -->
         <header class="header">
-            <div class="header-badge">
+            <div class="header-badge" onclick="goHome()" style="cursor: pointer;">
                 <span>✨</span> MEDIA PLATFORM DIRECTORY • STEAM SALES
             </div>
-            <h1>실시간 스팀 게임 가격</h1>
+            <h1 id="header-title" onclick="goHome()">실시간 스팀 게임 가격</h1>
             <p>최신 스팀 세일과 게임 원화 가격 정보를 실시간으로 똑똑하게 확인하세요.</p>
         </header>
 
@@ -871,6 +879,16 @@
                 statusBar.textContent = "데이터를 불러오는 중 오류가 발생했습니다.";
                 gamesGrid.innerHTML = '';
             }
+        }
+
+        // 📌 홈 화면 초기화/리셋 (Home Reset)
+        function goHome() {
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            hotdealsSection.style.display = 'block';
+            gamesGrid.innerHTML = '';
+            statusBar.textContent = "원하는 게임을 검색하면 결과가 표시됩니다.";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // 이벤트 리스너 등록
